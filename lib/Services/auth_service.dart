@@ -18,4 +18,15 @@ class AuthService {
     }
   }
 
+  Future<String?> loginWithEmailAndPassword(String _emailController, String _passwordController) async {
+    try{
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController, password: _passwordController);
+        return userCredential.user!.uid;
+    }
+    catch(e){
+      throw 'Erro ao fazer login: $e';
+    }
+  }
+
 }
