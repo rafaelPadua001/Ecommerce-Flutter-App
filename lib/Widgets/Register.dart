@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class Register extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -15,8 +14,6 @@ class Register extends StatelessWidget {
         child: Card(
           margin: EdgeInsets.all(16.0),
           child: SizedBox(
-           
-            
             child: Form(
               key: _formKey,
               child: Column(
@@ -62,7 +59,8 @@ class Register extends StatelessWidget {
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
                               //Process datas
-                              print('Processar os dados e eviar para cloudflare');
+                              print(
+                                  'Processar os dados e eviar para cloudflare');
                             }
                           },
                           child: Text('Register'),
