@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class Register extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  
+  @override
+  void dispose(){
+    _emailController.dispose();
+    _passwordController.dispose();
+    
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,6 +34,7 @@ class Register extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                     child: TextFormField(
+                      controller: _emailController,
                       decoration: const InputDecoration(
                         prefixIcon: const Icon(Icons.mail),
                         hintText: 'Email Here',
@@ -40,6 +50,7 @@ class Register extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                     child: TextFormField(
+                      controller: _passwordController,
                       obscureText: true,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.key),
@@ -59,10 +70,24 @@ class Register extends StatelessWidget {
                         padding:
                             EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               //Process datas
+<<<<<<< Updated upstream
                               print('Processar os dados e eviar para cloudflare');
+=======
+                              try{
+                                UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                  email: _emailController.text,
+                                  password: _passwordController.text
+                                );
+                                print('Usuario registrado com sucesso: {$userCredential.user!.uid}');
+                              }
+                              catch(e){
+                                print('Erro ao registrar usuário: $e');
+
+                              }
+>>>>>>> Stashed changes
                             }
                           },
                           child: Text('Register'),
