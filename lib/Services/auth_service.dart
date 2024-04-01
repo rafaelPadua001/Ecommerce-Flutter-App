@@ -11,11 +11,11 @@ class AuthService {
               email: _emailController, 
               password: _passwordController
           );
-      print('Usuario registrado com sucesso: {$userCredential.user!.uid}');
       return null;
     } catch (e) {
-      print('Erro ao registrar usuário: $e');
+      
       return e.toString();
     }
   }
+
 }
