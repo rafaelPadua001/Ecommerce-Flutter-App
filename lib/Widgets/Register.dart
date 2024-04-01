@@ -24,8 +24,6 @@ class Register extends StatelessWidget {
         child: Card(
           margin: EdgeInsets.all(16.0),
           child: SizedBox(
-           
-            
             child: Form(
               key: _formKey,
               child: Column(
@@ -88,6 +86,8 @@ class Register extends StatelessWidget {
 
                               }
 >>>>>>> Stashed changes
+                              print(
+                                  'Processar os dados e eviar para cloudflare');
                             }
                           },
                           child: Text('Register'),

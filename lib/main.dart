@@ -116,6 +116,13 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: <Widget>[
           IconButton(
+            icon: Icon(Icons.shopping_bag),
+            tooltip: 'Cart',
+            onPressed: () => {
+              print('Cart Clicked')
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.login),
             tooltip: 'Login page',
             onPressed: () {
@@ -143,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
               decoration: BoxDecoration(
                 color: Color.fromARGB(255, 255, 255, 255),
               ),
-              child: Text('Drawer Header'),
+              child: Text('Hello ! Wecolme !'),
             ),
             ListTile(
               title: const Text('Home'),
@@ -154,7 +161,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
-                title: const Text('Bussiness'),
+                title: const Text('User'),
                 selected: _selectedIndex == 1,
                 onTap: () {
                   _onItemTapped(1);
@@ -164,11 +171,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: Column(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // _widgetOptions[_selectedIndex],
           Expanded(
             child: SearchBarTextField(),
           ),
@@ -177,11 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: _incrementCounter,
-      //   tooltip: 'Increment',
-      //   child: const Icon(Icons.add),
-      // ), // This trailing comma makes auto-formatting nicer for build methods.
+     
     );
   }
 }
