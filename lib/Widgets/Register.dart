@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
+import '../Services/auth_service.dart';
 
 class Register extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  
+  final AuthService _authService = AuthService();
   @override
-  void dispose(){
+  void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,24 +69,34 @@ class Register extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
-                              //Process datas
-<<<<<<< Updated upstream
-                              print('Processar os dados e eviar para cloudflare');
-=======
-                              try{
-                                UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                                  email: _emailController.text,
-                                  password: _passwordController.text
-                                );
-                                print('Usuario registrado com sucesso: {$userCredential.user!.uid}');
+                              try {
+                                String? userId = await _authService
+                                    .RegisterWithEmailandPassword(
+                                        _emailController.text,
+                                        _passwordController.text);
+                                if (userId == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Novo usuário registrado'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Erro ao registrar novo usuário: $userId'),
+                                        backgroundColor: Colors.red
+                                      ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Erro ao registrar novo usuario $e')));
                               }
-                              catch(e){
-                                print('Erro ao registrar usuário: $e');
-
-                              }
->>>>>>> Stashed changes
-                              print(
-                                  'Processar os dados e eviar para cloudflare');
                             }
                           },
                           child: Text('Register'),
