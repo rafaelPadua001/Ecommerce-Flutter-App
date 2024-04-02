@@ -1,18 +1,38 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class SearchBarTextField extends StatelessWidget {
+class SearchBarTextField extends StatefulWidget {
+  const SearchBarTextField({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context){
+  _SearchBarTextFieldState createState() => _SearchBarTextFieldState();
+}
+
+class _SearchBarTextFieldState extends State<SearchBarTextField> {
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: 'Search Products');
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical:  16),
-          child: TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter a name product'
-            ),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: CupertinoSearchTextField(
+            controller: _searchController,
+            placeholder: 'Search',
           ),
         ),
       ],

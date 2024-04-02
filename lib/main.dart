@@ -4,6 +4,7 @@ import 'firebase_options.dart';
 import 'Widgets/SearchBarTextField.dart';
 import 'Widgets/LoginForm.dart';
 import 'Widgets/ProductsCard.dart';
+import 'Widgets/Profile.dart';
 
 void main() async{
   runApp(const MyApp());
@@ -68,6 +69,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+  Widget _currentPage = SearchBarTextField();
   // static const TextStyle optionStyle =
   //   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   // static const List<Widget> _widgetOptions = <Widget> [
@@ -94,8 +96,21 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      
     });
   }
+ Widget _buildPage(int index) {
+  switch(index){
+        case 0:
+          return ProductsCard();
+        // case 1:
+        //   _currentPage = CategoriesPage();
+        case 3: 
+          return LoginForm();
+        default:
+          return Container();
+      }
+ }
 
   @override
   Widget build(BuildContext context) {
@@ -107,78 +122,51 @@ class _MyHomePageState extends State<MyHomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.shopping_bag),
-            tooltip: 'Cart',
-            onPressed: () => {
-              print('Cart Clicked')
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.login),
-            tooltip: 'Login page',
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute<void>(
-                builder: (BuildContext context) {
-                  return Scaffold(
-                    appBar: AppBar(
-                      title: const Text('Login page'),
-                    ),
-                    body: const Center(
-                      child: LoginForm(),
-                    ),
-                  );
-                },
-              ));
-            },
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 255, 255, 255),
-              ),
-              child: Text('Hello ! Wecolme !'),
-            ),
-            ListTile(
-              title: const Text('Home'),
-              selected: _selectedIndex == 0,
-              onTap: () {
-                _onItemTapped(0);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-                title: const Text('User'),
-                selected: _selectedIndex == 1,
-                onTap: () {
-                  _onItemTapped(1);
-                  Navigator.pop(context);
-                })
-          ],
-        ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+            title: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
         children: [
           Expanded(
             child: SearchBarTextField(),
           ),
+        ],
+      ),
+    ),
+
+        
+      ),
+    
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
           Expanded(
-            child: ProductsCard(),
-          )
+            child: _buildPage(_selectedIndex),
+          ),
+          
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category_sharp),
+            label: 'Categories',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_bag),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
      
