@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'Widgets/SearchBarTextField.dart';
-import 'Widgets/LoginForm.dart';
+
 import 'Widgets/ProductsCard.dart';
 import 'Widgets/Profile.dart';
 
@@ -106,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // case 1:
         //   _currentPage = CategoriesPage();
         case 3: 
-          return LoginForm();
+          return Profile();
         default:
           return Container();
       }
