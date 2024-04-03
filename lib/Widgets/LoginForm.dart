@@ -46,9 +46,9 @@ class _LoginFormState extends State<LoginForm> {
         _passwordController.text
       );
       if(userId != null){
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Profile(userId: userId, email: _emailController.text)));
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => Profile(userId: userId, email: _emailController.text)));
       }
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Usuario logado com sucesso')));
       

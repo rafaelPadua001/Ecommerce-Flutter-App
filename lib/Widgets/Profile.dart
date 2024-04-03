@@ -1,14 +1,22 @@
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import './LoginForm.dart';
+import 'package:ecommerce_clone_app/Widgets/LoginForm.dart';
 
 class Profile extends StatelessWidget {
-  final String userId;
-  final String email;
+  // final String userId;
+  // final String email;
 
-  const Profile({Key? key, required this.userId, required this.email})
-      : super(key: key);
+  // const Profile({Key? key, required this.userId, required this.email})
+  //     : super(key: key);
+
+  const Profile({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+    
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -16,7 +24,43 @@ class Profile extends StatelessWidget {
             Row(
               children: [
                 Column(
-                  children: [Text(style: TextStyle(fontSize: 12), '$email')],
+                  // children: [Text(style: TextStyle(fontSize: 12), '$email')],
+                  children: [
+                    if(user == null)
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey,
+                        padding: const EdgeInsets.all(16.0),
+                        textStyle: const TextStyle(fontSize: 20),
+                      ),
+                      onPressed: () => {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginForm()),
+                        )
+                       
+                       
+                      },
+                      child: const Text('Login'),
+                    ),
+                    if(user != null)
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey,
+                        padding: const EdgeInsets.all(16.0),
+                        textStyle: const TextStyle(fontSize: 20),
+                      ),
+                      onPressed: () => {
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(builder: (context) => LoginForm()),
+                        // )
+                       
+                       
+                      },
+                      child: const Text('Logout'),
+                    ),
+                  ],
                 )
               ],
             ),
