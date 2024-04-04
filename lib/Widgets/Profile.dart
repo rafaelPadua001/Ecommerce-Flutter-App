@@ -1,72 +1,79 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
+import '../Services/auth_service.dart';
 import 'package:flutter/material.dart';
 import './LoginForm.dart';
-import 'package:ecommerce_clone_app/Widgets/LoginForm.dart';
 
-class Profile extends StatelessWidget {
-  // final String userId;
-  // final String email;
+class Profile extends StatefulWidget{
+  @override
+  _ProfileState createState() => _ProfileState();
+} 
+
+class _ProfileState extends State<Profile> {
+  //  final String userId;
+  //  final String email;
 
   // const Profile({Key? key, required this.userId, required this.email})
   //     : super(key: key);
-
-  const Profile({Key? key}) : super(key: key);
+  // const Profile({Key? key}) : super(key: key);
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
-    
+
+    Future<void> logout(BuildContext context) async {
+      try {
+        await _authService.logout();
+        setState(() {
+           Navigator.of(context).popUntil((route) => route.isFirst);
+        });
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Sua seção foi encerrada, Até breve  ...' )));
+      } catch (e) {
+        print('Erro ao fazer logout: $e');
+      }
+      return;
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Column(
+        title: Row(
           children: [
-            Row(
-              children: [
-                Column(
-                  // children: [Text(style: TextStyle(fontSize: 12), '$email')],
-                  children: [
-                    if(user == null)
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.grey,
-                        padding: const EdgeInsets.all(16.0),
-                        textStyle: const TextStyle(fontSize: 20),
-                      ),
-                      onPressed: () => {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginForm()),
-                        )
-                       
-                       
-                      },
-                      child: const Text('Login'),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (user != null)
+                    Text(
+                      '${user!.email ?? 'Não definido'}',
+                      style: TextStyle(fontSize: 12),
                     ),
-                    if(user != null)
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.grey,
-                        padding: const EdgeInsets.all(16.0),
-                        textStyle: const TextStyle(fontSize: 20),
-                      ),
-                      onPressed: () => {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(builder: (context) => LoginForm()),
-                        // )
-                       
-                       
-                      },
-                      child: const Text('Logout'),
-                    ),
-                  ],
-                )
-              ],
+                ],
+              ),
             ),
-            // Row(
-            //   children: [Text(style: TextStyle(fontSize: 12), '$userId')],
-            // ),
+            if (user != null)
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey,
+                  padding: const EdgeInsets.all(16.0),
+                  textStyle: const TextStyle(fontSize: 14),
+                ),
+                onPressed: () => logout(context),
+                child: const Text('Logout'),
+              ),
+            if (user == null)
+             
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey,
+                  padding: const EdgeInsets.all(16.0),
+                  textStyle: const TextStyle(fontSize: 14),
+                ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginForm()),
+                ),
+                child: const Text('Login'),
+              ),
           ],
         ),
       ),

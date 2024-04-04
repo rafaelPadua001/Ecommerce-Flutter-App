@@ -29,4 +29,13 @@ class AuthService {
     }
   }
 
+  Future<void> logout() async  {
+    try{
+      await _auth.signOut();
+    }
+    catch(e){
+      throw 'Erro ao fazer logout: $e';
+    }
+  }
+
 }

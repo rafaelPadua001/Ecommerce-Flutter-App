@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerce_clone_app/Widgets/Register.dart';
 import 'Profile.dart';
@@ -39,6 +40,7 @@ class _LoginFormState extends State<LoginForm> {
     _passwordController.dispose();
     super.dispose();
   }
+
   Future<void> _login() async {
     try{
       String? userId = await _authService.loginWithEmailAndPassword(
@@ -49,12 +51,39 @@ class _LoginFormState extends State<LoginForm> {
         // Navigator.push(
         //   context,
         //   MaterialPageRoute(builder: (context) => Profile(userId: userId, email: _emailController.text)));
+        setState(() {
+        // Por exemplo, você pode redirecionar para outra tela após o login bem-sucedido
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Profile()),
+        );
+      });
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Usuario logado com sucesso')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Bem Vindo ...' )));
       
     }
     catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao fazer login $e')));
+      String errorMessage = '${e}';
+      if(e is FirebaseAuthException){
+        switch(e.code){
+          case 'user-not-found':
+            errorMessage = 'E-mail não encontrado';
+            break;
+          case 'wrong-password':
+            errorMessage = 'Senha incorreta';
+            break;
+          default:
+            errorMessage = 'Erro desconhecido';
+            break;
+        }
+        
+      }
+      
+Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Profile()),
+        );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
     }
   }
   @override
