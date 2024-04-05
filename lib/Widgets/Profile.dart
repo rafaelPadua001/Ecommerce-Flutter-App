@@ -5,6 +5,12 @@ import 'package:flutter/material.dart';
 import './LoginForm.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../main.dart';
+
+void main() {
+  runApp(Profile());
+}
+
 
 class Profile extends StatefulWidget {
   @override
@@ -108,8 +114,12 @@ class _ProfileState extends State<Profile> {
     }
   }
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
+     
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
           children: [
             Expanded(
               child: Column(
@@ -163,7 +173,21 @@ class _ProfileState extends State<Profile> {
               ),
             ),
             if (user != null)
-              TextButton(
+            Column(
+              children: [
+                 TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.grey,
+                  padding: const EdgeInsets.all(16.0),
+                  textStyle: const TextStyle(fontSize: 14),
+                ),
+                onPressed: () => {Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => MyApp()), // Substitua "MyApp" pelo nome do seu widget principal (main.dart)
+    )},
+                child: const Text('Home'),
+              ),
+                TextButton(
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.grey,
                   padding: const EdgeInsets.all(16.0),
@@ -172,6 +196,10 @@ class _ProfileState extends State<Profile> {
                 onPressed: () => logout(context),
                 child: const Text('Logout'),
               ),
+             
+              ],
+            ),
+              
             if (user == null)
               TextButton(
                 style: TextButton.styleFrom(
@@ -187,8 +215,7 @@ class _ProfileState extends State<Profile> {
               ),
           ],
         ),
-      ),
-      body: Center(
+ Center(
           child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -220,6 +247,10 @@ class _ProfileState extends State<Profile> {
           SizedBox(height: 16),
         ],
       )),
+          ],
+        ),
+      ),
+      // body:
     );
   }
 }
