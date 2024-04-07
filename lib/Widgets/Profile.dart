@@ -18,15 +18,11 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  //  final String userId;
-  //  final String email;
-
-  // const Profile({Key? key, required this.userId, required this.email})
-  //     : super(key: key);
-  // const Profile({Key? key}) : super(key: key);
   final AuthService _authService = AuthService();
   XFile? _imageFile;
   String? _profileImageUrl;
+  late String? userName;
+  late String? userEmail;
 
   Future<String?> getProfileImageUrl() async {
     try {
@@ -47,6 +43,8 @@ class _ProfileState extends State<Profile> {
     getProfileImageUrl().then((imageUrl) {
       setState(() {
         _profileImageUrl = imageUrl;
+        userName =
+            FirebaseAuth.instance.currentUser?.displayName ?? 'não definido';
       });
     });
   }
@@ -171,6 +169,16 @@ class _ProfileState extends State<Profile> {
                             ),
                           ],
                         ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SizedBox(width: 50),
+                          Text(
+                            '${user?.displayName ?? 'Não definido'}',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -186,9 +194,7 @@ class _ProfileState extends State<Profile> {
                         onPressed: () => {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    MyApp()), 
+                            MaterialPageRoute(builder: (context) => MyApp()),
                           )
                         },
                         child: const Text('Home'),
@@ -199,12 +205,19 @@ class _ProfileState extends State<Profile> {
                           padding: const EdgeInsets.all(16.0),
                           textStyle: const TextStyle(fontSize: 10),
                         ),
-                        onPressed: () => Navigator.push(
-                          context,
-                         // print(FirebaseAuth.instance.currentUser),
-                         MaterialPageRoute(builder: (context) =>  Edit()),
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => EditForm()));
 
-                        ),
+                          if (result != null) {
+                            setState(() {
+                              userName = result['name'];
+                              userEmail = result['email'];
+                            });
+                          }
+                        },
                         child: const Text('Edit'),
                       ),
                       TextButton(

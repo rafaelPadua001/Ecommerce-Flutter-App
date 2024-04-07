@@ -87,8 +87,7 @@ class Register extends StatelessWidget {
                                     SnackBar(
                                         content: Text(
                                             'Erro ao registrar novo usuário: $userId'),
-                                        backgroundColor: Colors.red
-                                      ),
+                                        backgroundColor: Colors.red),
                                   );
                                 }
                               } catch (e) {
