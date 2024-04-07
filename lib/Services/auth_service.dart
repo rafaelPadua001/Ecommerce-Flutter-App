@@ -14,7 +14,7 @@ class AuthService {
       return null;
     } catch (e) {
       
-      return e.toString();
+     throw Exception('Erro ao registrar: $e');
     }
   }
 
@@ -29,6 +29,21 @@ class AuthService {
     }
   }
 
+  User? getCurrentUser(){
+    return _auth.currentUser;
+  }
+  Future<void> updateUser(String email, String name) async {
+    User? user = _auth.currentUser;
+    if(user != null){
+      try{
+        await user.verifyBeforeUpdateEmail(email);
+        await user.updateDisplayName(name);
+      }
+      catch(e){
+        throw Exception('Usuario não encontrado: $e');
+      }
+    }
+  }
   Future<void> logout() async  {
     try{
       await _auth.signOut();
@@ -38,4 +53,5 @@ class AuthService {
     }
   }
 
+  
 }

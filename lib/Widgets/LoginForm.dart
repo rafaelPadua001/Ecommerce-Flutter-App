@@ -4,7 +4,7 @@ import 'package:ecommerce_clone_app/Widgets/Register.dart';
 import 'Profile.dart';
 import '../Services/auth_service.dart';
 
-void main(){
+void main() {
   runApp(LoginForm());
 }
 
@@ -33,8 +33,7 @@ class _LoginFormState extends State<LoginForm> {
       String? userId = await _authService.loginWithEmailAndPassword(
           _emailController.text, _passwordController.text);
       if (userId != null) {
-       setState(() {
-          
+        setState(() {
           Navigator.pop(context);
           Navigator.pushReplacement(
             context,
@@ -43,7 +42,6 @@ class _LoginFormState extends State<LoginForm> {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text('Bem Vindo ...')));
         });
-       
       }
     } catch (e) {
       String errorMessage = '${e}';
@@ -75,116 +73,117 @@ class _LoginFormState extends State<LoginForm> {
     return Scaffold(
       appBar: AppBar(title: Text('Login')),
       body: Card(
-        margin: const EdgeInsets.all(16.0),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: TextFormField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      border: UnderlineInputBorder(),
-                      prefixIcon: const Icon(Icons.mail),
-                      hintText: 'Enter your e-mail',
+          margin: const EdgeInsets.all(16.0),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    child: TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        prefixIcon: const Icon(Icons.mail),
+                        hintText: 'Enter your e-mail',
+                      ),
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a some valid e-mail';
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a some valid e-mail';
-                      }
-                      return null;
-                    },
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                  child: TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      border: UnderlineInputBorder(),
-                      prefixIcon: const Icon(Icons.key),
-                      hintText: 'Enter your new Password',
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    child: TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        prefixIcon: const Icon(Icons.key),
+                        hintText: 'Enter your new Password',
+                      ),
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a some password max 8 characters';
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (String? value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a some password max 8 characters';
-                      }
-                      return null;
-                    },
                   ),
-                ),
-                Row(
-                  children: [
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                      child: TextButton(
+                  Row(
+                    children: [
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        child: TextButton(
+                            onPressed: () {
+                              print('Carregar esqeceu sua senha');
+                            },
+                            child: Text('forgot password ?')),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        child: TextButton(
                           onPressed: () {
-                            print('Carregar esqeceu sua senha');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Register()),
+                            );
                           },
-                          child: Text('forgot password ?')),
-                    ),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Register()),
-                          );
-                        },
-                        child: Text('Join us'),
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: [
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                      child: ElevatedButton(
-                        style: TextButton.styleFrom(
-                          //primary: Colors.white, // Cor do texto
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
+                          child: Text('Join us'),
                         ),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            //Process datas
-                            _login();
-                          }
-                        },
-                        child: const Text('Login'),
-                      ),
-                    ),
-                    Padding(
+                      )
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Padding(
                         padding:
                             EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                         child: ElevatedButton(
                           style: TextButton.styleFrom(
                             //primary: Colors.white, // Cor do texto
-                            backgroundColor: Colors.grey,
+                            backgroundColor: Colors.blue,
                             foregroundColor: Colors.white,
                           ),
                           onPressed: () {
-                            Navigator.pop(context);
+                            if (_formKey.currentState!.validate()) {
+                              //Process datas
+                              _login();
+                            }
                           },
-                          child: const Text('Return'),
-                        )),
-                  ],
-                ),
-              ],
+                          child: const Text('Login'),
+                        ),
+                      ),
+                      Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                          child: ElevatedButton(
+                            style: TextButton.styleFrom(
+                              //primary: Colors.white, // Cor do texto
+                              backgroundColor: Colors.grey,
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Return'),
+                          )),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        )),
+          )),
     );
   }
 }
