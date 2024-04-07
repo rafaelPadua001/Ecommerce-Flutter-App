@@ -6,11 +6,11 @@ import './LoginForm.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../main.dart';
+import './User/Edit.dart';
 
 void main() {
   runApp(Profile());
 }
-
 
 class Profile extends StatefulWidget {
   @override
@@ -27,28 +27,30 @@ class _ProfileState extends State<Profile> {
   final AuthService _authService = AuthService();
   XFile? _imageFile;
   String? _profileImageUrl;
- 
+
   Future<String?> getProfileImageUrl() async {
-  try {
-    String userId = FirebaseAuth.instance.currentUser!.uid;
-    Reference storageReference =
-        FirebaseStorage.instance.ref().child('profile_images/$userId');
-    String downloadURL = await storageReference.getDownloadURL();
-    return downloadURL;
-  } catch (e) {
-    print('Erro ao obter a URL da imagem do perfil: $e');
-    return null;
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      Reference storageReference =
+          FirebaseStorage.instance.ref().child('profile_images/$userId');
+      String downloadURL = await storageReference.getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      print('Erro ao obter a URL da imagem do perfil: $e');
+      return null;
+    }
   }
-}
-  @override 
+
+  @override
   void initState() {
-  super.initState();
-  getProfileImageUrl().then((imageUrl) {
-    setState(() {
-      _profileImageUrl = imageUrl;
+    super.initState();
+    getProfileImageUrl().then((imageUrl) {
+      setState(() {
+        _profileImageUrl = imageUrl;
+      });
     });
-  });
-}
+  }
+
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
@@ -102,151 +104,167 @@ class _ProfileState extends State<Profile> {
     }
 
     Future<String?> getProfileImageUrl() async {
-    try {
-      String userId = FirebaseAuth.instance.currentUser!.uid;
-      Reference storageReference =
-          FirebaseStorage.instance.ref().child('profile_images/$userId');
-      String downloadURL = await storageReference.getDownloadURL();
-      return downloadURL;
-    } catch (e) {
-      print('Erro ao obter a URL da imagem do perfil: $e');
-      return null;
+      try {
+        String userId = FirebaseAuth.instance.currentUser!.uid;
+        Reference storageReference =
+            FirebaseStorage.instance.ref().child('profile_images/$userId');
+        String downloadURL = await storageReference.getDownloadURL();
+        return downloadURL;
+      } catch (e) {
+        print('Erro ao obter a URL da imagem do perfil: $e');
+        return null;
+      }
     }
-  }
+
     return Scaffold(
-     
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
             Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (user != null)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 20,
-                        backgroundImage: _profileImageUrl != null
-    ? NetworkImage(_profileImageUrl!)
-    : (_imageFile != null
-        ? FileImage(File(_imageFile!.path)) as ImageProvider<Object>?
-        : NetworkImage(
-            'https://previews.123rf.com/images/triken/triken1608/triken160800029/61320775-male-avatar-profile-picture-default-user-avatar-guest-avatar-simply-human-head-vector-illustration.jpg')),
-
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: InkWell(
-                                  enableFeedback: true,
-                                  onTap: () {
-                                    getImage();
-                                  },
-                                  child: CircleAvatar(
-                                    radius: 5,
-                                    backgroundColor: Colors.blue,
-                                    child: Icon(
-                                      Icons.cloud_upload,
-                                      color: Colors.white,
-                                      size: 5,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (user != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundImage: _profileImageUrl != null
+                                  ? NetworkImage(_profileImageUrl!)
+                                  : (_imageFile != null
+                                      ? FileImage(File(_imageFile!.path))
+                                          as ImageProvider<Object>?
+                                      : NetworkImage(
+                                          'https://previews.123rf.com/images/triken/triken1608/triken160800029/61320775-male-avatar-profile-picture-default-user-avatar-guest-avatar-simply-human-head-vector-illustration.jpg')),
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: InkWell(
+                                      enableFeedback: true,
+                                      onTap: () {
+                                        getImage();
+                                      },
+                                      child: CircleAvatar(
+                                        radius: 5,
+                                        backgroundColor: Colors.blue,
+                                        child: Icon(
+                                          Icons.cloud_upload,
+                                          color: Colors.white,
+                                          size: 5,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              '${user!.email ?? 'Não definido'}',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 10),
-                        Text(
-                          '${user!.email ?? 'Não definido'}',
-                          style: TextStyle(fontSize: 12),
+                    ],
+                  ),
+                ),
+                if (user != null)
+                  Column(
+                    children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.grey,
+                          padding: const EdgeInsets.all(16.0),
+                          textStyle: const TextStyle(fontSize: 10),
+                        ),
+                        onPressed: () => {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    MyApp()), 
+                          )
+                        },
+                        child: const Text('Home'),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.grey,
+                          padding: const EdgeInsets.all(16.0),
+                          textStyle: const TextStyle(fontSize: 10),
+                        ),
+                        onPressed: () => Navigator.push(
+                          context,
+                         // print(FirebaseAuth.instance.currentUser),
+                         MaterialPageRoute(builder: (context) =>  Edit()),
+
+                        ),
+                        child: const Text('Edit'),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.grey,
+                          padding: const EdgeInsets.all(16.0),
+                          textStyle: const TextStyle(fontSize: 10),
+                        ),
+                        onPressed: () => logout(context),
+                        child: const Text('Logout'),
+                      ),
+                    ],
+                  ),
+                if (user == null)
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.grey,
+                      padding: const EdgeInsets.all(16.0),
+                      textStyle: const TextStyle(fontSize: 14),
+                    ),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginForm()),
+                    ),
+                    child: const Text('Login'),
+                  ),
+              ],
+            ),
+            Center(
+                child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  children: [
+                    Column(
+                      children: [
+                        Card(
+                          child: Text('In your cart: 0'),
                         ),
                       ],
                     ),
-                ],
-              ),
-            ),
-            if (user != null)
-            Column(
-              children: [
-                 TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.grey,
-                  padding: const EdgeInsets.all(16.0),
-                  textStyle: const TextStyle(fontSize: 14),
+                    Column(
+                      children: [
+                        Card(
+                          child: Text('In your wishlist: 0'),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Card(
+                          child: Text('In your ordered: 0'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                onPressed: () => {Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => MyApp()), // Substitua "MyApp" pelo nome do seu widget principal (main.dart)
-    )},
-                child: const Text('Home'),
-              ),
-                TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.grey,
-                  padding: const EdgeInsets.all(16.0),
-                  textStyle: const TextStyle(fontSize: 14),
-                ),
-                onPressed: () => logout(context),
-                child: const Text('Logout'),
-              ),
-             
+                SizedBox(height: 16),
               ],
-            ),
-              
-            if (user == null)
-              TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.grey,
-                  padding: const EdgeInsets.all(16.0),
-                  textStyle: const TextStyle(fontSize: 14),
-                ),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginForm()),
-                ),
-                child: const Text('Login'),
-              ),
-          ],
-        ),
- Center(
-          child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              Column(
-                children: [
-                  Card(
-                    child: Text('In your cart: 0'),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Card(
-                    child: Text('In your wishlist: 0'),
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Card(
-                    child: Text('In your ordered: 0'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-        ],
-      )),
+            )),
           ],
         ),
       ),
