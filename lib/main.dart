@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'Widgets/SearchBarTextField.dart';
-import 'Widgets/ProductsCard.dart';
+import 'Widgets/Products/Products.dart';
 import 'Widgets/Profile.dart';
 import 'Services/category_service.dart';
 import 'Services/subcategory_service.dart';
@@ -173,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildPage(int index) {
     switch (index) {
       case 0:
-        return ProductsCard();
+        return Products();
       case 1:
         return FutureBuilder<List<Map<String, dynamic>>>(
           future: category.fetchCategories(),
