@@ -3,6 +3,7 @@ import '../../Services/category_service.dart';
 
 class CategoriesWidget extends StatelessWidget {
   final Category category = Category();
+  
 
   @override
   Widget build(BuildContext context){
