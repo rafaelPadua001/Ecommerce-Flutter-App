@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../Services/category_service.dart';
 
+
 class CategoriesWidget extends StatelessWidget {
   final Category category = Category();
   
