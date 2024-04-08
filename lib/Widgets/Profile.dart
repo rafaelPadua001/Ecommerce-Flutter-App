@@ -185,7 +185,9 @@ class _ProfileState extends State<Profile> {
                 if (user != null)
                   Column(
                     children: [
-                      TextButton(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child:  TextButton(
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.grey,
                           padding: const EdgeInsets.all(16.0),
@@ -199,6 +201,8 @@ class _ProfileState extends State<Profile> {
                         },
                         child: const Text('Home'),
                       ),
+                      ),
+                     
                       TextButton(
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.grey,
