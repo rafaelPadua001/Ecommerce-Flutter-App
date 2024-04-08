@@ -19,7 +19,14 @@ class Products extends StatelessWidget {
               child: Text('Error: ${snapshot.error}'),
             );
           } else if (snapshot.data != null) {
-            return ListView.builder(
+            return GridView.builder(
+               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // Define o número de colunas na grade
+                crossAxisSpacing: 10, // Espaçamento entre as colunas
+                mainAxisSpacing: 8, // Espaçamento entre as linhas
+                childAspectRatio: 1, // Define a proporção entre a largura e a altura dos itens
+              ),
+              shrinkWrap: true,
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   final productData = snapshot.data![index];
