@@ -4,16 +4,15 @@ import 'firebase_options.dart';
 import 'Widgets/SearchBarTextField.dart';
 import 'Widgets/ProductsCard.dart';
 import 'Widgets/Profile.dart';
+import 'Services/category_service.dart';
 
-void main() async{
+void main() async {
   runApp(const MyApp());
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 }
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -69,6 +68,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   Widget _currentPage = SearchBarTextField();
+  Category category = Category();
+  late Future<List<Map<String, dynamic>>> categoriesFuture;
+
   // static const TextStyle optionStyle =
   //   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   // static const List<Widget> _widgetOptions = <Widget> [
@@ -92,24 +94,83 @@ class _MyHomePageState extends State<MyHomePage> {
   //     _counter++;
   //   });
   // }
+  @override
+  void initState() {
+    super.initState();
+    categoriesFuture = category.fetchCategories();
+  }
+
+  @override
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      
     });
   }
- Widget _buildPage(int index) {
-  switch(index){
-        case 0:
-          return ProductsCard();
-        // case 1:
-        //   _currentPage = CategoriesPage();
-        case 3: 
-          return Profile();
-        default:
-          return Container();
-      }
- }
+
+  Widget _buildCategoriesWidget(List<Map<String, dynamic>> categories) {
+    // Aqui você pode construir o widget que representa as categorias,
+    // utilizando a lista de categorias passada como parâmetro.
+    return GridView.builder(
+       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2, // Define o número de colunas na grade
+        crossAxisSpacing: 10, // Espaçamento entre as colunas
+        mainAxisSpacing: 10, // Espaçamento entre as linhas
+        childAspectRatio: 1, // Define a proporção entre a largura e a altura dos itens
+      ),
+      shrinkWrap: true,
+      itemCount: categories.length,
+      itemBuilder: (context, index) {
+        final categoryData = categories[index];
+        return InkWell(
+          onTap: () {
+            print('categoria clicada: ${categoryData['name']}');
+          },
+          child: Card(
+          child: Container(
+            width: double.infinity,
+            child: ListTile(
+            title: Text(categories[index]['name']),
+          ),
+            // Outros campos e estilos podem ser configurados aqui
+          ),
+        ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPage(int index) {
+    switch (index) {
+      case 0:
+        return ProductsCard();
+      case 1:
+        return FutureBuilder<List<Map<String, dynamic>>>(
+          future: category.fetchCategories(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Erro: ${snapshot.error}'),
+              );
+            } else if (snapshot.hasData) {
+              return _buildCategoriesWidget(snapshot
+                  .data!); // Chamando a função para construir as categorias
+            } else {
+              return Center(
+                child: Text('Nenhum dado de categoria disponível.'),
+              );
+            }
+          },
+        );
+      case 3:
+        return Profile();
+      default:
+        return Container();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,27 +183,23 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: SearchBarTextField(),
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: SearchBarTextField(),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    ),
-
-        
-      ),
-    
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
             child: _buildPage(_selectedIndex),
           ),
-          
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -168,7 +225,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-     
     );
   }
 }
