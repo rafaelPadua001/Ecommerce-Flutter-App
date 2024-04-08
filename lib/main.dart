@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Category category = Category();
   Subcategory subCategory = Subcategory();
   late Future<List<Map<String, dynamic>>> categoriesFuture;
-
+  final baseUrl = 'http://192.168.122.1:8000/storage/Categories/Thumbnails/';
   // static const TextStyle optionStyle =
   //   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   // static const List<Widget> _widgetOptions = <Widget> [
@@ -114,18 +114,20 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildCategoriesWidget(List<Map<String, dynamic>> categories) {
     // Aqui você pode construir o widget que representa as categorias,
     // utilizando a lista de categorias passada como parâmetro.
-    return GridView.builder(
-       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // Define o número de colunas na grade
-        crossAxisSpacing: 10, // Espaçamento entre as colunas
-        mainAxisSpacing: 10, // Espaçamento entre as linhas
-        childAspectRatio: 1, // Define a proporção entre a largura e a altura dos itens
-      ),
-      shrinkWrap: true,
-      itemCount: categories.length,
-      itemBuilder: (context, index) {
-        final categoryData = categories[index];
-        return InkWell(
+     return GridView.builder(
+  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 2, // Define o número de colunas na grade
+    crossAxisSpacing: 10, // Espaçamento entre as colunas
+    mainAxisSpacing: 8, // Espaçamento entre as linhas
+    childAspectRatio: 1, // Define a proporção entre a largura e a altura dos itens
+  ),
+  shrinkWrap: true,
+  itemCount: categories.length,
+  itemBuilder: (context, index) {
+    final categoryData = categories[index];
+    final imageName = categoryData['thumbnail'];
+    final imageUrl = baseUrl + imageName;
+    return InkWell(
           onTap: () {
             print('categoria clicada: ${categoryData['id']}');
             Navigator.push(
@@ -136,15 +138,34 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           },
           child: Card(
-          child: Container(
-            width: double.infinity,
-            child: ListTile(
-            title: Text(categories[index]['name']),
-          ),
-            // Outros campos e estilos podem ser configurados aqui
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 175, // Altura da imagem
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(imageUrl),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(16.0),
+              color: Colors.black.withOpacity(0.5),
+              child: Text(
+                categoryData['name'],
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
         ),
-        );
+      ),
+    );
       },
     );
   }
