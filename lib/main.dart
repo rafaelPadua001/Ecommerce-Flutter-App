@@ -1,13 +1,15 @@
-import 'package:ecommerce_clone_app/Services/subcategory_service.dart';
-import 'package:ecommerce_clone_app/Widgets/Subcategories/subcategories.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/widgets.dart';
 import 'firebase_options.dart';
 import 'Widgets/SearchBarTextField.dart';
 import 'Widgets/Products/Products.dart';
+import 'Widgets/Subcategories/subcategories.dart';
+import 'Widgets/Banner/Banner.dart';
 import 'Widgets/Profile.dart';
 import 'Services/category_service.dart';
 import 'Services/subcategory_service.dart';
+import 'Services/banner_service.dart';
 
 void main() async {
   runApp(const MyApp());
@@ -49,8 +51,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _currentPage = SearchBarTextField();
   Category category = Category();
   Subcategory subCategory = Subcategory();
+  BannerWidget banner = BannerWidget();
   late Future<List<Map<String, dynamic>>> categoriesFuture;
+  late Future<List<Map<String, dynamic>>> bannerFuture;
   final baseUrl = 'http://192.168.122.1:8000/storage/Categories/Thumbnails/';
+  final bannerUrl = 'http://192.168.122.1:8000/storage/Banners/';
 
   @override
   void initState() {
@@ -124,6 +129,62 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _buildBanner(List<Map<String, dynamic>> banner) {
+    return SingleChildScrollView(
+        child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 8,
+              childAspectRatio: 1,
+            ),
+            // shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: banner.length,
+            itemBuilder: (context, index) {
+              final bannerData = banner[index];
+              final imageName = bannerData['image'].replaceAll('"', '');
+              final imageUrl = bannerUrl + imageName;
+
+              return InkWell(
+                onTap: () {
+                  if (bannerData.containsKey('image')) {
+                    print('banner clicado ${bannerData["image"].toString()}');
+                  } else {
+                    print('A chave "image" não está presente em bannerData');
+                  }
+                },
+                child: Card(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          height: 175, // Altura da imagem
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage(imageUrl),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(16.0),
+                          color: Colors.black.withOpacity(0.5),
+                          child: Text(
+                            bannerData['id'].toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ]),
+                ),
+              );
+            }));
+  }
+
   Widget _buildPage(int index) {
     switch (index) {
       case 0:
@@ -181,11 +242,18 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        children: <Widget>[
+          Visibility(
+            visible: _selectedIndex == 0,
+            child: SizedBox(
+               height: 80,
+            child: BannerWidget(),
+            ),
+           
+          ),
           Expanded(
             child: _buildPage(_selectedIndex),
           ),
-         
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
