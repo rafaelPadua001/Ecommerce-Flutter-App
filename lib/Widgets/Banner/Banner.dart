@@ -17,7 +17,7 @@ class BannerWidget extends StatelessWidget{
           );
         }
         else if(snapshot.hasError){
-          print(snapshot);
+       
           return Center(
             
             child: Text('Error: ${snapshot.error}'),
@@ -25,6 +25,7 @@ class BannerWidget extends StatelessWidget{
         }
         else if(snapshot.hasData){
           return ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final banner = snapshot.data![index];

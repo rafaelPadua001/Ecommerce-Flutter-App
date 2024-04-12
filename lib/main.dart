@@ -240,22 +240,23 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Visibility(
-            visible: _selectedIndex == 0,
-            child: SizedBox(
-               height: 80,
+      body: _selectedIndex == 0
+  ? ListView(
+      children: <Widget>[
+        Visibility(
+          visible: _selectedIndex == 0,
+          child: SizedBox(
+            height: 200,
             child: BannerWidget(),
-            ),
-           
           ),
-          Expanded(
-            child: _buildPage(_selectedIndex),
-          ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: _buildPage(_selectedIndex),
+        ),
+      ],
+    )
+  : _buildPage(_selectedIndex),
+     
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
