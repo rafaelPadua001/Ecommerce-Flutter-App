@@ -39,7 +39,7 @@ class Products extends StatelessWidget {
                       crossAxisSpacing: 10, // Espaçamento entre as colunas
                       mainAxisSpacing: 8, // Espaçamento entre as linhas
                       childAspectRatio:
-                          1, // Define a proporção entre a largura e a altura dos itens
+                          0.65, // Define a proporção entre a largura e a altura dos itens
                     ),
                     shrinkWrap: true,
                     itemCount: snapshot.data!.length,
@@ -55,48 +55,97 @@ class Products extends StatelessWidget {
                                 print(
                                     'produto Escolhido ${productData['name']}'),
                               }),
-                          child: Card(
+                          child: SizedBox(
+                            width: double.infinity,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Container(
-                                  height: 175, // Altura da imagem
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(imageUrl),
-                                      fit: BoxFit.cover,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        print('Wish list Clicked');
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content:
+                                                    Text('Wish list clicked')));
+                                      },
+                                      child: Icon(
+                                        Icons.favorite_outline,
+                                        color: Colors.red,
+                                        size: 18,
+                                      ),
                                     ),
                                   ),
-                                  child: Column(
+                                  Card(
+                                    clipBehavior: Clip.antiAlias,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
-                                        Wrap(
-                                          alignment: WrapAlignment.end,
+                                        Container(
+                                          height: 185,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImage(imageUrl),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                Wrap(
+                                                  alignment:
+                                                      WrapAlignment.start,
+                                                  children: [
+                                                    Chip(
+                                                      label: Text(
+                                                        'R\$ ${productData['price']}',
+                                                      ),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20.0),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ]),
+                                        ),
+                                        ListTile(
+                                          title: Text(productData['name']),
+                                        ),
+                                        Row(
                                           children: [
-                                            Chip(
-                                              label: Text(
-                                                'R\$ ${productData['price']}',
-                                              ),
-                                            )
+                                            Icon(Icons.star,
+                                                color: Colors
+                                                    .yellow), // Ícone de estrela para representar avaliação
+                                            Icon(Icons.star,
+                                                color: Colors.yellow),
+                                            Icon(Icons.star,
+                                                color: Colors.yellow),
+                                            Icon(Icons.star,
+                                                color: Colors.yellow),
+                                            Icon(Icons.star_half,
+                                                color: Colors
+                                                    .yellow), // Ícone de estrela pela metade
                                           ],
                                         ),
-                                      ]),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(16.0),
-                                  color: Colors.black.withOpacity(0.5),
-                                  child: Text(
-                                    productData['name'],
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                        Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child:
+                                              Text(productData['description']),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ]),
                           ),
                         );
                       } else {
@@ -123,7 +172,7 @@ class Products extends StatelessWidget {
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 8,
-                      childAspectRatio: 1,
+                      childAspectRatio: 0.65,
                     ),
                     shrinkWrap: true,
                     itemCount: snapshot.data!.length,
@@ -139,48 +188,97 @@ class Products extends StatelessWidget {
                                 print(
                                     'produto Escolhido ${productData['name']}'),
                               }),
-                          child: Card(
+                          child: SizedBox(
+                            width: double.infinity,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Container(
-                                  height: 175, // Altura da imagem
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(imageUrl),
-                                      fit: BoxFit.cover,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        print('Wish list Clicked');
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content:
+                                                    Text('Wish list clicked')));
+                                      },
+                                      child: Icon(
+                                        Icons.favorite_outline,
+                                        color: Colors.red,
+                                        size: 18,
+                                      ),
                                     ),
                                   ),
-                                  child: Column(
+                                  Card(
+                                    clipBehavior: Clip.antiAlias,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
-                                        Wrap(
-                                          alignment: WrapAlignment.end,
+                                        Container(
+                                          height: 185,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImage(imageUrl),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                Wrap(
+                                                  alignment:
+                                                      WrapAlignment.start,
+                                                  children: [
+                                                    Chip(
+                                                      label: Text(
+                                                        'R\$ ${productData['price']}',
+                                                      ),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20.0),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ]),
+                                        ),
+                                        ListTile(
+                                          title: Text(productData['name']),
+                                        ),
+                                        Row(
                                           children: [
-                                            Chip(
-                                              label: Text(
-                                                'R\$ ${productData['price']}',
-                                              ),
-                                            )
+                                            Icon(Icons.star,
+                                                color: Colors
+                                                    .yellow), // Ícone de estrela para representar avaliação
+                                            Icon(Icons.star,
+                                                color: Colors.yellow),
+                                            Icon(Icons.star,
+                                                color: Colors.yellow),
+                                            Icon(Icons.star,
+                                                color: Colors.yellow),
+                                            Icon(Icons.star_half,
+                                                color: Colors
+                                                    .yellow), // Ícone de estrela pela metade
                                           ],
                                         ),
-                                      ]),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(16.0),
-                                  color: Colors.black.withOpacity(0.5),
-                                  child: Text(
-                                    productData['name'],
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                        Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child:
+                                              Text(productData['description']),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ]),
                           ),
                         );
                       } else {
@@ -206,7 +304,7 @@ class Products extends StatelessWidget {
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 8,
-                      childAspectRatio: 1,
+                      childAspectRatio: 0.65,
                     ),
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(), // Remova o scroll
@@ -222,48 +320,97 @@ class Products extends StatelessWidget {
                                 print(
                                     'produto Escolhido ${productData['name']}'),
                               }),
-                          child: Card(
+                          child: SizedBox(
+                            width: double.infinity,
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Container(
-                                  height: 175, // Altura da imagem
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(imageUrl),
-                                      fit: BoxFit.cover,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        print('Wish list Clicked');
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content:
+                                                    Text('Wish list clicked')));
+                                      },
+                                      child: Icon(
+                                        Icons.favorite_outline,
+                                        color: Colors.red,
+                                        size: 18,
+                                      ),
                                     ),
                                   ),
-                                  child: Column(
+                                  Card(
+                                    clipBehavior: Clip.antiAlias,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
-                                        Wrap(
-                                          alignment: WrapAlignment.end,
+                                        Container(
+                                          height: 185,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImage(imageUrl),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                Wrap(
+                                                  alignment:
+                                                      WrapAlignment.start,
+                                                  children: [
+                                                    Chip(
+                                                      label: Text(
+                                                        'R\$ ${productData['price']}',
+                                                      ),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20.0),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ]),
+                                        ),
+                                        ListTile(
+                                          title: Text(productData['name']),
+                                        ),
+                                        Row(
                                           children: [
-                                            Chip(
-                                              label: Text(
-                                                'R\$ ${productData['price']}',
-                                              ),
-                                            )
+                                            Icon(Icons.star,
+                                                color: Colors
+                                                    .yellow), // Ícone de estrela para representar avaliação
+                                            Icon(Icons.star,
+                                                color: Colors.yellow),
+                                            Icon(Icons.star,
+                                                color: Colors.yellow),
+                                            Icon(Icons.star,
+                                                color: Colors.yellow),
+                                            Icon(Icons.star_half,
+                                                color: Colors
+                                                    .yellow), // Ícone de estrela pela metade
                                           ],
                                         ),
-                                      ]),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(16.0),
-                                  color: Colors.black.withOpacity(0.5),
-                                  child: Text(
-                                    productData['name'],
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                        Padding(
+                                          padding: const EdgeInsets.all(16.0),
+                                          child:
+                                              Text(productData['description']),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ]),
                           ),
                         );
                       } else {
