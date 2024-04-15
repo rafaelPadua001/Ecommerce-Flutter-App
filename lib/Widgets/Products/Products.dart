@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../Services/products_service.dart';
+import '../../Services/likes_service.dart';
 
 class Products extends StatelessWidget {
   final Product products = Product();
+  final LikesService likes = LikesService();
   final baseUrl = 'http://192.168.122.1:8000/storage/products/';
 
   @override
@@ -64,10 +66,14 @@ class Products extends StatelessWidget {
                                     padding: EdgeInsets.all(8.0),
                                     child: InkWell(
                                       onTap: () {
+                                        LikesService().store(productData);
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(SnackBar(
                                                 content:
-                                                    Text('Product added on your wishlist ${productData['id']}')));
+                                                    Text('Product added on your wishlist ${productData['id']}'),
+                                                backgroundColor: Colors.green,
+                                                ));
+                                                
                                       },
                                       child: Icon(
                                         Icons.favorite_outline,
