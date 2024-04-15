@@ -64,11 +64,10 @@ class Products extends StatelessWidget {
                                     padding: EdgeInsets.all(8.0),
                                     child: InkWell(
                                       onTap: () {
-                                        print('Wish list Clicked');
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(SnackBar(
                                                 content:
-                                                    Text('Wish list clicked')));
+                                                    Text('Product added on your wishlist ${productData['id']}')));
                                       },
                                       child: Icon(
                                         Icons.favorite_outline,
