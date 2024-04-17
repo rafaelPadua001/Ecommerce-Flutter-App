@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../Services/products_service.dart';
 import '../../Services/wishlist_service.dart';
+import '../../Services/discount_service.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
 
 class Products extends StatefulWidget {
   @override
@@ -10,13 +13,35 @@ class Products extends StatefulWidget {
 class _ProductState extends State<Products> {
   final Product products = Product();
   final WishlistService wishlistService = WishlistService();
+  final DiscountService discountService = DiscountService();
+  List<Map<String,dynamic>> _discounts = [];
   final baseUrl = 'http://192.168.122.1:8000/storage/products/';
+
+  @override
+  void initState(){
+    super.initState();
+    _loadDiscounts();
+  }
+
 
   @override
   void updateProductInWishlist() {
     setState(() {
-      // Aqui você pode atualizar o estado ou rebuscar os produtos, dependendo da necessidade
+      
     });
+  }
+
+  @override 
+  void _loadDiscounts() async {
+    try{
+      final discounts = await discountService.fetchDiscounts();
+      setState(){
+        _discounts = discounts;
+      }
+    }
+    catch(e){
+      throw Exception('Erro ao carregar descontos: $e');
+    }
   }
 
   @override
@@ -504,6 +529,12 @@ class _ProductState extends State<Products> {
                 SizedBox(
                   height: 10,
                 ),
+                Text('Discounts'),
+                _buildCarousel(),
+                Divider(),
+                SizedBox(
+                  height: 10,
+                ),
                 Text(
                   'All Products',
                   style: TextStyle(
@@ -702,5 +733,47 @@ class _ProductState extends State<Products> {
             return Text('Nenhum produto encontrado');
           }
         });
+  }
+
+
+Widget _buildCarousel() {
+  if(_discounts != null && _discounts.isNotEmpty){
+     return CarouselSlider(
+      options: CarouselOptions(
+        height: 200,
+        enlargeCenterPage: true,
+        autoPlay: true,
+      ),
+      items: this._discounts.map((discount){
+        return Builder(
+          builder: (BuildContext context){
+            return Container(
+              width: MediaQuery.of(context).size.width,
+              margin: EdgeInsets.symmetric(horizontal: 0.5),
+              decoration: BoxDecoration(
+                color: Colors.amber,
+              ),
+              child: Text('${discount['code']} - ${discount['discount_percentage']}'),
+            );
+          }
+        );
+      }).toList(),
+      );
+  }
+  else{
+    return SizedBox(
+      height: 200, // Altura definida para corresponder à altura do carrossel
+      child: Center(
+        child: Text(
+          'No discounts available',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+   
   }
 }
