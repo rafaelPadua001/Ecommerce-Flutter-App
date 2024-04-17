@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:carousel_slider/carousel_slider.dart';
+
 
 class DiscountService {
   Future<List<Map<String,dynamic>>> fetchDiscounts() async {
