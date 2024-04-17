@@ -6,7 +6,7 @@ class WishlistService {
   final AuthService _authService = AuthService();
 
   Future<DatabaseReference> getDatabase() async {
-    final databaseReference = FirebaseDatabase.instance.reference();
+    final databaseReference = FirebaseDatabase.instance.ref();
 
     return databaseReference;
   }
@@ -14,7 +14,7 @@ class WishlistService {
   Future<List<String>> getWishlist() async {
     try {
       final DatabaseReference databaseReference =
-          FirebaseDatabase.instance.reference();
+          FirebaseDatabase.instance.ref();
       DatabaseEvent event = await databaseReference.child('wishlist').once();
       DataSnapshot snapshot = event.snapshot;
 
@@ -64,7 +64,7 @@ class WishlistService {
       User? _authUser = await _authService.getCurrentUser();
       final DatabaseReference databaseReference = await getDatabase();
 
-      databaseReference
+      await databaseReference
           .child('wishlist')
           .child(_authUser!.uid)
           .child(product['id'].toString())
@@ -80,7 +80,30 @@ class WishlistService {
     }
   }
 
-  // Future<void> getCurrentLikes() async {
+  Future<void> destroy(String productId) async {
+    try {
+      final User? _authUser = await _authService.getCurrentUser();
+      if (_authUser == null) {
+        throw Exception('Usuário não autenticado');
+      }
 
-  // }
+      final DatabaseReference databaseReference = await getDatabase();
+      await databaseReference
+          .child('wishlist')
+          .child(_authUser.uid)
+          .child(productId)
+          .remove()
+          .then((_){
+            print('Produto removido com sucesso da wishlist');
+            return;
+          })
+          .catchError((error){
+           return Future.error(error);
+          });
+
+      
+    } catch (e) {
+      throw Exception('Erro ao remover o produto da wishlist: $e');
+    }
+  }
 }
