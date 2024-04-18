@@ -41,7 +41,7 @@ class WishlistService {
       }
 
       final DatabaseReference databaseReference =
-          await FirebaseDatabase.instance.reference();
+          await FirebaseDatabase.instance.ref();
       DatabaseEvent event = await databaseReference
           .child('wishlist')
           .child(_authUser!.uid)
@@ -59,7 +59,6 @@ class WishlistService {
     }
   }
 
-  
 Future<int> countProductsWishlist() async {
   try {
     final User? _authUser = await _authService.getCurrentUser();
@@ -68,24 +67,25 @@ Future<int> countProductsWishlist() async {
     }
 
     final DatabaseReference databaseReference = await getDatabase();
-    final DatabaseEvent databaseEvent = await databaseReference
+    final DataSnapshot dataSnapshot = (await databaseReference
         .child('wishlist')
         .child(_authUser.uid)
-        .once();
+        .once()).snapshot;
 
-    final DataSnapshot dataSnapshot = databaseEvent.snapshot;
-    final dynamic snapshotValue = dataSnapshot.value;
-    
-    if (snapshotValue != null && snapshotValue is Map<dynamic, dynamic>) {
-      final Map<dynamic, dynamic> wishlistMap = snapshotValue;
-      final int productCount = wishlistMap.length;
+     
+    final dynamic wishlistData = dataSnapshot.value;
+    int productCount = 0;
 
-      print('O usuário ${_authUser.uid} possui $productCount na lista de desejos');
-      return productCount;
-    } else {
-      print('O usuário ${_authUser.uid} não possui uma lista de desejos');
-      return 0;
+    if (wishlistData != null && wishlistData is List) {
+      for (var item in wishlistData) {
+        if (item is Map && item.containsKey('productId')) {
+          productCount++;
+        }
+      }
     }
+
+    print('O usuário ${_authUser.uid} possui $productCount na lista de desejos');
+    return productCount;
   } catch (e) {
     throw Exception('Erro ao carregar lista de desejos: $e');
   }
