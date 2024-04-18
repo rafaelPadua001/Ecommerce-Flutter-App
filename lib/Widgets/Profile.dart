@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../main.dart';
 import './User/Edit.dart';
+import '../Services/wishlist_service.dart';
 
 void main() {
   runApp(Profile());
@@ -19,6 +20,8 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final AuthService _authService = AuthService();
+  final WishlistService _wishlistService = WishlistService();
+  int wishlistItemCount = 0;
   XFile? _imageFile;
   String? _profileImageUrl;
   late String? userName;
@@ -40,13 +43,29 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     super.initState();
-    getProfileImageUrl().then((imageUrl) {
-      setState(() {
-        _profileImageUrl = imageUrl;
-        userName =
-            FirebaseAuth.instance.currentUser?.displayName ?? 'não definido';
-      });
+   
+    loadProfileData();
+  }
+Future<void> loadProfileData() async {
+  await countProductsWishlist();
+  await getProfileImageUrl().then((imageUrl) {
+    setState(() {
+      _profileImageUrl = imageUrl;
+      userName = FirebaseAuth.instance.currentUser?.displayName ?? 'não definido';
     });
+  });
+}
+  
+  Future<void> countProductsWishlist() async {
+    try{
+      int itemCount = await _wishlistService.countProductsWishlist();
+      setState(() {
+        wishlistItemCount = itemCount;
+      });
+    }
+    catch(e){
+      throw Exception('Erro ao contar itens na lista de desejos $e');
+    }
   }
 
   @override
@@ -266,7 +285,7 @@ class _ProfileState extends State<Profile> {
                     Column(
                       children: [
                         Card(
-                          child: Text('In your wishlist: 0'),
+                          child: Text('In your wishlist: ${wishlistItemCount}'),
                         ),
                       ],
                     ),
