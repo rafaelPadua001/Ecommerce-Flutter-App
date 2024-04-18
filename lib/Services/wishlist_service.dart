@@ -59,6 +59,38 @@ class WishlistService {
     }
   }
 
+  
+Future<int> countProductsWishlist() async {
+  try {
+    final User? _authUser = await _authService.getCurrentUser();
+    if (_authUser == null) {
+      throw Exception('Usuário não autenticado');
+    }
+
+    final DatabaseReference databaseReference = await getDatabase();
+    final DatabaseEvent databaseEvent = await databaseReference
+        .child('wishlist')
+        .child(_authUser.uid)
+        .once();
+
+    final DataSnapshot dataSnapshot = databaseEvent.snapshot;
+    final dynamic snapshotValue = dataSnapshot.value;
+    
+    if (snapshotValue != null && snapshotValue is Map<dynamic, dynamic>) {
+      final Map<dynamic, dynamic> wishlistMap = snapshotValue;
+      final int productCount = wishlistMap.length;
+
+      print('O usuário ${_authUser.uid} possui $productCount na lista de desejos');
+      return productCount;
+    } else {
+      print('O usuário ${_authUser.uid} não possui uma lista de desejos');
+      return 0;
+    }
+  } catch (e) {
+    throw Exception('Erro ao carregar lista de desejos: $e');
+  }
+}
+
   Future<void> store(product) async {
     try {
       User? _authUser = await _authService.getCurrentUser();
