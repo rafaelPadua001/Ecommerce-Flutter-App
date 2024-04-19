@@ -7,8 +7,6 @@ class BannerService{
 
     if(response.statusCode == 200){
       final data = json.decode(response.body) as Map<String, dynamic>;
-      print(data);
-    //  return data.map((banner) => banner as Map<String, dynamic>).toList();
       return [data];
     }
     else
