@@ -3,6 +3,10 @@ import '../../Services/products_service.dart';
 import '../../Services/wishlist_service.dart';
 import '../../Services/discount_service.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'dart:convert';
+
+
+
 
 
 class Products extends StatefulWidget {
@@ -16,7 +20,7 @@ class _ProductState extends State<Products> {
   final DiscountService discountService = DiscountService();
   List<Map<String,dynamic>> _discounts = [];
   final baseUrl = 'http://192.168.122.1:8000/storage/products/';
-
+  final discountsUrl = 'http://192.168.122.1:8000/storage/Coupons/';
   @override
   void initState(){
     super.initState();
@@ -35,9 +39,10 @@ class _ProductState extends State<Products> {
   void _loadDiscounts() async {
     try{
       final discounts = await discountService.fetchDiscounts();
-      setState(){
+      setState((){
+        print(discounts);
         _discounts = discounts;
-      }
+      });
     }
     catch(e){
       throw Exception('Erro ao carregar descontos: $e');
@@ -737,7 +742,8 @@ class _ProductState extends State<Products> {
 
 
 Widget _buildCarousel() {
-  if(_discounts != null && _discounts.isNotEmpty){
+  
+  if(_discounts.isNotEmpty){
      return CarouselSlider(
       options: CarouselOptions(
         height: 200,
@@ -745,15 +751,36 @@ Widget _buildCarousel() {
         autoPlay: true,
       ),
       items: this._discounts.map((discount){
+        print(discount);
         return Builder(
           builder: (BuildContext context){
             return Container(
               width: MediaQuery.of(context).size.width,
               margin: EdgeInsets.symmetric(horizontal: 0.5),
               decoration: BoxDecoration(
-                color: Colors.amber,
+                color: Colors.grey.shade100,
               ),
-              child: Text('${discount['code']} - ${discount['discount_percentage']}'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                 
+    Image.network(
+    '${discountsUrl}${discount['images'].replaceAll('"', '')}',
+      loadingBuilder: (context, child, progress){
+        if(progress == null) return child;
+        return CircularProgressIndicator(
+          value: progress.expectedTotalBytes != null
+          ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+          : null,
+        );
+      },
+      errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+    ),
+                  
+                 Text('${discount['code']} - ${discount['discount_percentage']}'),
+                ],
+              ),
+             
             );
           }
         );
