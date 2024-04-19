@@ -85,6 +85,8 @@ class _ProductState extends State<Products> {
                         child: Text('Error: ${snapshot.error}'),
                       );
                     } else if (snapshot.data != null) {
+                      final launcherProducts = snapshot.data!.where((productData) => productData['launch'] == 1).toList();
+
                       return GridView.builder(
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
@@ -97,10 +99,12 @@ class _ProductState extends State<Products> {
                                 0.65, // Define a proporção entre a largura e a altura dos itens
                           ),
                           shrinkWrap: true,
-                          itemCount: snapshot.data!.length,
+                          itemCount: launcherProducts.length,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final productData = snapshot.data![index];
+                            
+                            final productData = launcherProducts[index];
+                            
                             final productImage = productData['images']
                                 .replaceAll(RegExp(r'[\[\]"]'), '');
                             final imageUrl = baseUrl + productImage;
@@ -288,14 +292,14 @@ class _ProductState extends State<Products> {
                                       ]),
                                 ),
                               );
+                              
                             } else {
-                              return Container();
+                               return SizedBox.shrink();
                             }
+                            
                           });
                     } else {
-                      return Center(
-                        child: Text('Nenhum produto encontrado'),
-                      );
+                       return SizedBox.shrink();
                     }
                   },
                 ),
@@ -321,6 +325,7 @@ class _ProductState extends State<Products> {
                       return Text(
                           'Nenhum produto encontrado: ${snapshot.error}');
                     } else if (snapshot.data != null) {
+                       final highlightProducts = snapshot.data!.where((productData) => productData['highlight'] == 1).toList();
                       return GridView.builder(
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
@@ -330,13 +335,15 @@ class _ProductState extends State<Products> {
                             childAspectRatio: 0.65,
                           ),
                           shrinkWrap: true,
-                          itemCount: snapshot.data!.length,
+                          itemCount: highlightProducts.length,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final productData = snapshot.data![index];
-                            final productImage = productData['images']
-                                .replaceAll(RegExp(r'[\[\]"]'), '');
-                            final imageUrl = baseUrl + productImage;
+                            final productData = highlightProducts[index];
+                            final productImages = productData['images'];
+
+                      final productImage = productImages.split(',')[0].trim()
+                          .replaceAll(RegExp(r'[\[\]"]'), '');
+                      final imageUrl = baseUrl + productImage;
                             if (productData['highlight'] == 1) {
                               return InkWell(
                                 onTap: (() => {
@@ -512,8 +519,8 @@ class _ProductState extends State<Products> {
                                               Padding(
                                                 padding:
                                                     const EdgeInsets.all(16.0),
-                                                child: Text(
-                                                    productData['description']),
+                                                // child: Text(
+                                                //     productData['description']),
                                               ),
                                             ],
                                           ),
@@ -522,7 +529,7 @@ class _ProductState extends State<Products> {
                                 ),
                               );
                             } else {
-                              return Container();
+                              return SizedBox.shrink();
                             }
                           });
                     } else {
@@ -559,7 +566,9 @@ class _ProductState extends State<Products> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       final productData = snapshot.data![index];
-                      final productImage = productData['images']
+                      final productImages = productData['images'];
+
+                      final productImage = productImages.split(',')[0].trim()
                           .replaceAll(RegExp(r'[\[\]"]'), '');
                       final imageUrl = baseUrl + productImage;
                       if (productData.length >= 1) {
@@ -717,8 +726,8 @@ class _ProductState extends State<Products> {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(16.0),
-                                          child:
-                                              Text(productData['description']),
+                                          // child:
+                                          //     Text(productData['description']),
                                         ),
                                       ],
                                     ),
