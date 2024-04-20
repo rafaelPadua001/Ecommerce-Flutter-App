@@ -1,3 +1,4 @@
+import 'package:ecommerce_clone_app/Widgets/SubcategoryProducts/SubcategoryProduct.dart';
 import 'package:flutter/material.dart';
 import '../../Services/subcategory_service.dart';
 
@@ -40,11 +41,11 @@ class SubcategoryWidget extends StatelessWidget {
                     return Card(
                       child: InkWell(
                         onTap: () => {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content:
-                                  Text('Clicou no ${subcategoryData['name']}')))
-
-                          // print('Clicou no ${subcategoryData['name']}'),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SubcategoryProductWidget(subcategoryId: subcategoryData['id'].toString())),
+                          ),
+                         
                         },
                         child: Column(children: [
                           ListTile(
