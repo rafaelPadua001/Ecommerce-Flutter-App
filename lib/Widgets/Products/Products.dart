@@ -4,7 +4,7 @@ import '../../Services/wishlist_service.dart';
 import '../../Services/discount_service.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:convert';
-
+import '../Dialog/ProductDialog.dart';
 
 
 
@@ -113,7 +113,15 @@ class _ProductState extends State<Products> {
                                 onTap: (() => {
                                       print(
                                           'produto Escolhido ${productData['name']}'),
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context){
+                                              return ProductDialog(productId: productData['id'].toString());
+                                            }),
+                                      
                                     }),
+                                    
+
                                 child: SizedBox(
                                   width: double.infinity,
                                   child: Column(
