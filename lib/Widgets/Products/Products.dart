@@ -6,9 +6,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:convert';
 import '../Dialog/ProductDialog.dart';
 
-
-
-
 class Products extends StatefulWidget {
   @override
   _ProductState createState() => _ProductState();
@@ -18,33 +15,29 @@ class _ProductState extends State<Products> {
   final Product products = Product();
   final WishlistService wishlistService = WishlistService();
   final DiscountService discountService = DiscountService();
-  List<Map<String,dynamic>> _discounts = [];
+  List<Map<String, dynamic>> _discounts = [];
   final baseUrl = 'http://192.168.122.1:8000/storage/products/';
   final discountsUrl = 'http://192.168.122.1:8000/storage/Coupons/';
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _loadDiscounts();
   }
 
-
   @override
   void updateProductInWishlist() {
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
-  @override 
+  @override
   void _loadDiscounts() async {
-    try{
+    try {
       final discounts = await discountService.fetchDiscounts();
-      setState((){
+      setState(() {
         print(discounts);
         _discounts = discounts;
       });
-    }
-    catch(e){
+    } catch (e) {
       throw Exception('Erro ao carregar descontos: $e');
     }
   }
@@ -85,7 +78,9 @@ class _ProductState extends State<Products> {
                         child: Text('Error: ${snapshot.error}'),
                       );
                     } else if (snapshot.data != null) {
-                      final launcherProducts = snapshot.data!.where((productData) => productData['launch'] == 1).toList();
+                      final launcherProducts = snapshot.data!
+                          .where((productData) => productData['launch'] == 1)
+                          .toList();
 
                       return GridView.builder(
                           gridDelegate:
@@ -102,32 +97,23 @@ class _ProductState extends State<Products> {
                           itemCount: launcherProducts.length,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            
                             final productData = launcherProducts[index];
-                            
+
                             final productImage = productData['images']
                                 .replaceAll(RegExp(r'[\[\]"]'), '');
                             final imageUrl = baseUrl + productImage;
                             if (productData['launch'] == 1) {
                               return InkWell(
                                 onTap: (() => {
-                                      print(
-                                          'produto Escolhido ${productData['name']}'),
-                                          // showDialog(
-                                          //   context: context,
-                                          //   builder: (BuildContext context){
-                                          //     return ProductDialog(productId: productData['id'].toString());
-                                          //   }),
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ProductDialog(productId: productData['id'].toString()), 
-                                          ),
-                                        )
-                                     //ProductDialog(productId: productData['id'].toString()),
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ProductDialog(
+                                              productId:
+                                                  productData['id'].toString()),
+                                        ),
+                                      )
                                     }),
-                                    
-
                                 child: SizedBox(
                                   width: double.infinity,
                                   child: Column(
@@ -306,14 +292,12 @@ class _ProductState extends State<Products> {
                                       ]),
                                 ),
                               );
-                              
                             } else {
-                               return SizedBox.shrink();
+                              return SizedBox.shrink();
                             }
-                            
                           });
                     } else {
-                       return SizedBox.shrink();
+                      return SizedBox.shrink();
                     }
                   },
                 ),
@@ -339,7 +323,9 @@ class _ProductState extends State<Products> {
                       return Text(
                           'Nenhum produto encontrado: ${snapshot.error}');
                     } else if (snapshot.data != null) {
-                       final highlightProducts = snapshot.data!.where((productData) => productData['highlight'] == 1).toList();
+                      final highlightProducts = snapshot.data!
+                          .where((productData) => productData['highlight'] == 1)
+                          .toList();
                       return GridView.builder(
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
@@ -355,14 +341,22 @@ class _ProductState extends State<Products> {
                             final productData = highlightProducts[index];
                             final productImages = productData['images'];
 
-                      final productImage = productImages.split(',')[0].trim()
-                          .replaceAll(RegExp(r'[\[\]"]'), '');
-                      final imageUrl = baseUrl + productImage;
+                            final productImage = productImages
+                                .split(',')[0]
+                                .trim()
+                                .replaceAll(RegExp(r'[\[\]"]'), '');
+                            final imageUrl = baseUrl + productImage;
                             if (productData['highlight'] == 1) {
                               return InkWell(
                                 onTap: (() => {
-                                      print(
-                                          'produto Escolhido ${productData['name']}'),
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ProductDialog(
+                                              productId:
+                                                  productData['id'].toString()),
+                                        ),
+                                      ),
                                     }),
                                 child: SizedBox(
                                   width: double.infinity,
@@ -582,14 +576,22 @@ class _ProductState extends State<Products> {
                       final productData = snapshot.data![index];
                       final productImages = productData['images'];
 
-                      final productImage = productImages.split(',')[0].trim()
+                      final productImage = productImages
+                          .split(',')[0]
+                          .trim()
                           .replaceAll(RegExp(r'[\[\]"]'), '');
                       final imageUrl = baseUrl + productImage;
                       if (productData.length >= 1) {
                         return InkWell(
                           onTap: (() => {
-                                print(
-                                    'produto Escolhido ${productData['name']}'),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProductDialog(
+                                        productId:
+                                            productData['id'].toString()),
+                                  ),
+                                )
                               }),
                           child: SizedBox(
                             width: double.infinity,
@@ -763,20 +765,17 @@ class _ProductState extends State<Products> {
         });
   }
 
-
-Widget _buildCarousel() {
-  
-  if(_discounts.isNotEmpty){
-     return CarouselSlider(
-      options: CarouselOptions(
-        height: 200,
-        enlargeCenterPage: true,
-        autoPlay: true,
-      ),
-      items: this._discounts.map((discount){
-        print(discount);
-        return Builder(
-          builder: (BuildContext context){
+  Widget _buildCarousel() {
+    if (_discounts.isNotEmpty) {
+      return CarouselSlider(
+        options: CarouselOptions(
+          height: 200,
+          enlargeCenterPage: true,
+          autoPlay: true,
+        ),
+        items: this._discounts.map((discount) {
+          print(discount);
+          return Builder(builder: (BuildContext context) {
             return Container(
               width: MediaQuery.of(context).size.width,
               margin: EdgeInsets.symmetric(horizontal: 0.5),
@@ -786,44 +785,41 @@ Widget _buildCarousel() {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                 
-    Image.network(
-    '${discountsUrl}${discount['images'].replaceAll('"', '')}',
-      loadingBuilder: (context, child, progress){
-        if(progress == null) return child;
-        return CircularProgressIndicator(
-          value: progress.expectedTotalBytes != null
-          ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-          : null,
-        );
-      },
-      errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
-    ),
-                  
-                 Text('${discount['code']} - ${discount['discount_percentage']}'),
+                  Image.network(
+                    '${discountsUrl}${discount['images'].replaceAll('"', '')}',
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return CircularProgressIndicator(
+                        value: progress.expectedTotalBytes != null
+                            ? progress.cumulativeBytesLoaded /
+                                progress.expectedTotalBytes!
+                            : null,
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) =>
+                        Icon(Icons.error),
+                  ),
+                  Text(
+                      '${discount['code']} - ${discount['discount_percentage']}'),
                 ],
               ),
-             
             );
-          }
-        );
-      }).toList(),
+          });
+        }).toList(),
       );
-  }
-  else{
-    return SizedBox(
-      height: 200, // Altura definida para corresponder à altura do carrossel
-      child: Center(
-        child: Text(
-          'No discounts available',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+    } else {
+      return SizedBox(
+        height: 200, // Altura definida para corresponder à altura do carrossel
+        child: Center(
+          child: Text(
+            'No discounts available',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-      ),
-    );
-  }
-   
+      );
+    }
   }
 }
