@@ -113,12 +113,18 @@ class _ProductState extends State<Products> {
                                 onTap: (() => {
                                       print(
                                           'produto Escolhido ${productData['name']}'),
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context){
-                                              return ProductDialog(productId: productData['id'].toString());
-                                            }),
-                                      
+                                          // showDialog(
+                                          //   context: context,
+                                          //   builder: (BuildContext context){
+                                          //     return ProductDialog(productId: productData['id'].toString());
+                                          //   }),
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ProductDialog(productId: productData['id'].toString()), 
+                                          ),
+                                        )
+                                     //ProductDialog(productId: productData['id'].toString()),
                                     }),
                                     
 

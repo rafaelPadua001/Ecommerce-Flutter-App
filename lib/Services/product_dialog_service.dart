@@ -7,8 +7,8 @@ class ProductDialogService {
     final response = await http.get(Uri.parse('http://192.168.122.1:8000/api/product/${productId}'));
 
     if(response.statusCode == 200){
-      Map<String, dynamic> data = json.decode(response.body);
-      return [data];
+      List<Map<String, dynamic>> data = [json.decode(response.body)];
+      return data;
     }
     else{
       throw Exception('Nenhum produto encontrado');
