@@ -14,12 +14,12 @@ class ProductDialog extends StatefulWidget {
 }
 
 class _ProductDialogState extends State<ProductDialog> {
-  late Color backgroundColor;
+  late Color chipColor;
 
   @override
   void initState() {
     super.initState();
-    backgroundColor = Colors.white; // Cor padrão dos chips
+    chipColor = Colors.white; // Cor padrão dos chips
   }
 
   @override
@@ -166,42 +166,33 @@ class _ProductDialogState extends State<ProductDialog> {
   }
 
   Widget _buildColorChip(String color) {
-  bool isHovering = false; // Variável para rastrear se o cursor está sobre o chip
+    Color chipColor = Color(int.parse(color.substring(1), radix: 16) + 0xFF000000);
+    Color pressedColor = Colors.black.withOpacity(0.8);
+    Color boxDecoration = chipColor;
 
-  return MouseRegion(
-    cursor: SystemMouseCursors.click,
-    child: GestureDetector(
+    return InkWell(
       onTap: () {
-        isHovering = true;
-        // Adicione a lógica para lidar com o clique no chip aqui
-        print('Maconha');
-        
+        // setState(() {
+        //   boxDecoration = pressedColor;
+        // });
+        print('Cor selecionada ${color}');
       },
-      child: Container(
+      onTapDown: (_){
+         boxDecoration = pressedColor;
+      },
+      onTapUp: (_){
+        boxDecoration = chipColor;
+      },
+      splashColor: pressedColor,
+       child: Container(
         width: 24,
         height: 24,
         decoration: BoxDecoration(
-          color: Color(int.parse(color.substring(1), radix: 16) + 0xFF000000),
+          color: boxDecoration,
           shape: BoxShape.circle,
         ),
       ),
-    ),
-    onEnter: (_) {
-      setState(() {
-        isHovering = true; // O cursor está sobre o chip
-        // Defina a cor do chip quando estiver em foco
-        // Por exemplo, você pode definir a cor para uma cor mais escura ou diferente
-        backgroundColor = Colors.white;
-      });
-    },
-    onExit: (_) {
-      setState(() {
-        isHovering = false; // O cursor não está mais sobre o chip
-        // Defina a cor do chip quando não estiver em foco
-        backgroundColor = Colors.white;
-      });
-    },
-  );
+    );
 }
 
 
@@ -218,12 +209,42 @@ class _ProductDialogState extends State<ProductDialog> {
         Wrap(
           spacing: 8.0,
           children: [
-            for (var size in cleanSizes) Chip(label: Text(size)),
+            for (var size in cleanSizes) 
+            _buildSelectedSize(size),
+       //     Chip(label: Text(size)),
+           
           ],
         ),
       ],
     );
   }
+
+  Widget _buildSelectedSize(String size){
+    Color chipColor = Colors.white;
+    Color pressedColor = Colors.red;
+    Color boxDecoration = chipColor;
+     String selectedSize = '';
+
+    return InkWell(
+      splashColor: pressedColor,
+      child: ChoiceChip(
+        label: Text(size),
+        selected: selectedSize == size, // Verifica se este chip está selecionado
+        onSelected: (isSelected) {
+          selectedSize = isSelected ? size : '';
+          print('Tamanho selecionado ${size}');
+          // setState(() {
+          //  // selectedSize = isSelected ? size : ''; // Atualiza o tamanho selecionado com base na seleção do chip
+          //   print('Tamanho selecionado ${size}');
+          // });
+          boxDecoration = pressedColor;
+        },
+        backgroundColor: boxDecoration,
+        selectedColor: pressedColor,
+      ), 
+    );
+  }
+
 
   Widget _buildDescriptionSection(Map<String, dynamic> product) {
     return Padding(
