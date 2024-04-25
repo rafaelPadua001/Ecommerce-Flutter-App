@@ -166,6 +166,7 @@ class _ProductDialogState extends State<ProductDialog> {
   }
 
   Widget _buildColorChip(String color) {
+     String selectedColor = 'Blue';
     Color chipColor = Color(int.parse(color.substring(1), radix: 16) + 0xFF000000);
     Color pressedColor = Colors.black.withOpacity(0.8);
     Color boxDecoration = chipColor;
@@ -184,13 +185,19 @@ class _ProductDialogState extends State<ProductDialog> {
         boxDecoration = chipColor;
       },
       splashColor: pressedColor,
-       child: Container(
-        width: 24,
-        height: 24,
-        decoration: BoxDecoration(
-          color: boxDecoration,
-          shape: BoxShape.circle,
-        ),
+      child: ChoiceChip(
+        backgroundColor: chipColor,
+        label: Text(color),
+        selected: selectedColor == color, // Verifica se este chip está selecionado
+        onSelected: (isSelected) {
+          selectedColor = isSelected ? color : '';
+          print('Tamanho selecionado ${color}');
+          // setState(() {
+          //  // selectedSize = isSelected ? size : ''; // Atualiza o tamanho selecionado com base na seleção do chip
+          //   print('Tamanho selecionado ${size}');
+          // });
+          boxDecoration = pressedColor;
+        },
       ),
     );
 }
