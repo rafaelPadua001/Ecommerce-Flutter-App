@@ -1,3 +1,5 @@
+
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -12,7 +14,8 @@ class AuthService {
               email: _emailController, 
               password: _passwordController
           );
-      return null;
+          return userCredential.user!.getIdToken();
+      
     } catch (e) {
       
      throw Exception('Erro ao registrar: $e');
@@ -24,13 +27,17 @@ class AuthService {
      
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController, password: _passwordController);
-        return userCredential.user!.uid;
+        return getToken(userCredential);
+         
     }
     catch(e){
       throw 'Erro ao fazer login: $e';
     }
   }
-
+  Future<String?> getToken(UserCredential userCredential) async {
+    return userCredential.user!.getIdToken();
+  }
+  
   User? getCurrentUser(){
     return _auth.currentUser;
   }
