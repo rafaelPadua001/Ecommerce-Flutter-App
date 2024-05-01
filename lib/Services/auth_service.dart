@@ -34,6 +34,7 @@ class AuthService {
       throw 'Erro ao fazer login: $e';
     }
   }
+  
   Future<String?> getToken(UserCredential userCredential) async {
     return userCredential.user!.getIdToken();
   }
