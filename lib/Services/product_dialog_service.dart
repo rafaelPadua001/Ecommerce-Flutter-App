@@ -5,7 +5,7 @@ class ProductDialogService {
 
   Future<List<Map<String, dynamic>>> fetchProductDialog({required String productId}) async {
     final String api_url = '${ApiConfig.getApiBaseUrl()}/product/${productId}';
-    print(api_url);
+   
     final response = await http.get(Uri.parse(api_url));
 
     if(response.statusCode == 200){
