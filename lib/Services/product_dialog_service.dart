@@ -37,7 +37,13 @@ class ProductDialogService {
       .child(product!['id'].toString())
       .set({
         'productId': product['id'],
-        'name': product['name']
+        'userId': _authUser.uid,
+        'user_name': _authUser.displayName,
+        'name': product['name'],
+        'quantity': 1,
+        'colors': product['colors'],
+        'sizes': product['sizes'],
+        'images': product['images'],
       });
      
 
@@ -45,6 +51,37 @@ class ProductDialogService {
     catch(e){
       throw Exception('É necessario estar logado para realizar essa ação $e');
     }
-    print('Produto selecionado $product');
+  }
+
+  Future<int> countProductCart() async {
+    try{
+      final _authUser = await _authService.getCurrentUser();
+      if(_authUser == null){
+        throw Exception('usuario não autenticado');
+      }
+      
+      final databaseReference = await getDatabase();
+      final DataSnapshot dataSnapshot = (await databaseReference
+      .child('cart')
+      .child(_authUser.uid)
+      .once()).snapshot;
+
+      final dynamic cartData = dataSnapshot.value;
+      int productCount = 0;
+
+      if(cartData != null && cartData is List){
+        for(var item in cartData){
+          if(item is Map && item.containsKey('productId')){
+            productCount++;
+          }
+        }
+      }
+
+      print('Usuario possui $productCount em seu carrinho');
+      return productCount;
+    }
+    catch(e){
+      throw Exception('Erro ao carregar lista de produtos no carrinho $e');
+    }
   }
 }

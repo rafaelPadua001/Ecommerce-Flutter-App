@@ -43,9 +43,11 @@ class _ProductDialogState extends State<ProductDialog> {
     }
   }
 
+  
+
   void _sendDataToService(Map<String, dynamic>? product) {
     if (selectedColors.length >= 1 || selectedSizes.length >= 1) {
-      product!['size'] = selectedSizes;
+      product!['sizes'] = selectedSizes;
       product['colors'] = selectedColors;
       // print(
       //     'cores e tamanhos selecionados ${selectedColors} / ${selectedSizes}');
