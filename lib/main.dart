@@ -1,4 +1,4 @@
-import 'package:ecommerce_clone_app/Widgets/Dialog/ProductDialog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
@@ -65,17 +65,21 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     categoriesFuture = category.fetchCategories();
-    countProductCart();
+    _countProductCart();
+    //  _currentPage = SearchBarTextField();
+    // _onItemTapped(_selectedIndex);
+    
   }
 
   @override
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index) async {
+    await  _countProductCart();
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  void countProductCart() async {
+  Future<void> _countProductCart() async {
     try{
       int _ItemCount = await productDialogService.countProductCart();
       setState(() {
@@ -243,6 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+     
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
