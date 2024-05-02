@@ -19,6 +19,7 @@ class _ProductDialogState extends State<ProductDialog> {
   List<String> selectedColors = [];
   List<String> selectedSizes = [];
   Map<String, dynamic>? product;
+
   @override
   void initState() {
     super.initState();
@@ -44,9 +45,13 @@ class _ProductDialogState extends State<ProductDialog> {
 
   void _sendDataToService(Map<String, dynamic>? product) {
     if (selectedColors.length >= 1 || selectedSizes.length >= 1) {
-      print(
-          'cores e tamanhos selecionados ${selectedColors} / ${selectedSizes}');
-       print('Produto: $product');
+      product!['size'] = selectedSizes;
+      product['colors'] = selectedColors;
+      // print(
+      //     'cores e tamanhos selecionados ${selectedColors} / ${selectedSizes}');
+      //  print(product['colors']);
+      //  print(product['size']);
+      widget._productDialogService.store(product);
           
     } else {
       print('nada selecionado');
@@ -105,8 +110,8 @@ class _ProductDialogState extends State<ProductDialog> {
           children: [
             TextButton(
               onPressed: () {
-                print('Adicionar ao carrinho...');
-                print(product);
+                // print('Adicionar ao carrinho...');
+                // print(product);
                 _sendDataToService(product);
               },
               child: Text('Add to Cart', style: TextStyle(color: Colors.white)),
