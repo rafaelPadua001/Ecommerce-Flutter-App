@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
@@ -10,6 +11,7 @@ import 'Widgets/Profile.dart';
 import 'Services/category_service.dart';
 import 'Services/subcategory_service.dart';
 import 'Services/banner_service.dart';
+import 'Services/product_dialog_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,22 +54,41 @@ class _MyHomePageState extends State<MyHomePage> {
   Category category = Category();
   Subcategory subCategory = Subcategory();
   BannerWidget banner = BannerWidget();
+  ProductDialogService productDialogService = ProductDialogService();
   late Future<List<Map<String, dynamic>>> categoriesFuture;
   late Future<List<Map<String, dynamic>>> bannerFuture;
   final baseUrl = 'http://192.168.122.1:8000/storage/Categories/Thumbnails/';
   final bannerUrl = 'http://192.168.122.1:8000/storage/Banners/';
+  int _cartItemCount = 0;
 
   @override
   void initState() {
     super.initState();
     categoriesFuture = category.fetchCategories();
+    _countProductCart();
+    //  _currentPage = SearchBarTextField();
+    // _onItemTapped(_selectedIndex);
+    
   }
 
   @override
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index) async {
+    await  _countProductCart();
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  Future<void> _countProductCart() async {
+    try{
+      int _ItemCount = await productDialogService.countProductCart();
+      setState(() {
+        _cartItemCount = _ItemCount;
+      });
+    }
+    catch(e){
+      throw Exception('erro ao contar itens no carrinho $e');
+    }
   }
 
   Widget _buildCategoriesWidget(List<Map<String, dynamic>> categories) {
@@ -226,6 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+     
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -261,7 +283,7 @@ class _MyHomePageState extends State<MyHomePage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -271,7 +293,36 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Categories',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
+            icon: Stack(
+              children: <Widget>[
+                Icon(Icons.shopping_bag),
+               _cartItemCount != 0
+                ? Positioned(
+                  right: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+
+                    child: Text(
+                      '$_cartItemCount',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
+                : SizedBox(),
+              ],
+            ), 
             label: 'Cart',
           ),
           BottomNavigationBarItem(
