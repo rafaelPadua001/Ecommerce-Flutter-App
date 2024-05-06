@@ -41,11 +41,44 @@ class _CartState extends State<Cart> {
                   height: 10,
                   fit: BoxFit.cover,
                 )
-              : SizedBox(),
-          Text(cart_product['name']),
+              :Container(width: 60, height: 60),
+          SizedBox(height: 8,),
+          Text(cart_product['name'] ?? ''),
+          Text(cart_product['price'] ?? ''),
           SizedBox(height: 8),
-          Text('Quantity: ${cart_product['quantity']}'),
-          SizedBox(height: 10,),
+          //Text('Quantity: ${cart_product['quantity']}'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                flex: 2,
+                child: TextFormField(
+                  initialValue: cart_product['quantity']?.toString() ?? '',
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Quantity',
+                  ),
+                 
+                  onChanged: (value){
+                    
+                  
+                    // print(value);
+                  }
+                ),
+                )
+            ],
+          ),
+          SizedBox(height: 10),
+          Container(
+            width: 40,
+            height: 40,
+            child: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: (){
+                print('delete ${cart_product['productId']}');
+              },
+            ),
+          ),
 
         ],
       ),
