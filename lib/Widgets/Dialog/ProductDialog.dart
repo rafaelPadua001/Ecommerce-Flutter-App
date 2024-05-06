@@ -1,10 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_clone_app/main.dart';
+import 'package:ecommerce_clone_app/Services/cart_service.dart';
+
 import 'package:flutter/material.dart';
-import '../../Services/product_dialog_service.dart';
+import '../../Services/cart_service.dart';
 
 class ProductDialog extends StatefulWidget {
-  final ProductDialogService _productDialogService = ProductDialogService();
+  final CartService _cartService = CartService();
   final String productId;
   final imageUrl = 'http://192.168.122.1:8000/storage/products/';
  
@@ -48,17 +50,12 @@ class _ProductDialogState extends State<ProductDialog> {
     if (selectedColors.length >= 1 || selectedSizes.length >= 1) {
       product!['sizes'] = selectedSizes;
       product['colors'] = selectedColors;
-   
-      widget._productDialogService.store(product);
-      setState(() {
-          ScaffoldMessenger
-          .of(context)
-          .showSnackBar(
-            SnackBar(
-              content: Text('Um novo item foi adicionado ao carrinho'),
-              backgroundColor: Colors.green,
-              ));
-      });
+      // print(
+      //     'cores e tamanhos selecionados ${selectedColors} / ${selectedSizes}');
+      //  print(product['colors']);
+      //  print(product['size']);
+      widget._cartService.store(product);
+          
     } else {
       print('nada selecionado');
     }
@@ -71,7 +68,7 @@ class _ProductDialogState extends State<ProductDialog> {
         title: Text('Produto Selecionado'),
       ),
       body: FutureBuilder(
-        future: widget._productDialogService
+        future: widget._cartService
             .fetchProductDialog(productId: widget.productId),
         builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

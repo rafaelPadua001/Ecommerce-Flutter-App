@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
@@ -8,10 +7,11 @@ import 'Widgets/Products/Products.dart';
 import 'Widgets/Subcategories/subcategories.dart';
 import 'Widgets/Banner/Banner.dart';
 import 'Widgets/Profile.dart';
+import 'Widgets/Cart/Cart.dart';
 import 'Services/category_service.dart';
 import 'Services/subcategory_service.dart';
 import 'Services/banner_service.dart';
-import 'Services/product_dialog_service.dart';
+import 'Services/cart_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,7 +54,8 @@ class MyHomePageState extends State<MyHomePage> {
   Category category = Category();
   Subcategory subCategory = Subcategory();
   BannerWidget banner = BannerWidget();
-  ProductDialogService productDialogService = ProductDialogService();
+  CartService cart = CartService();
+  CartService cartService = CartService();
   late Future<List<Map<String, dynamic>>> categoriesFuture;
   late Future<List<Map<String, dynamic>>> bannerFuture;
   final baseUrl = 'http://192.168.122.1:8000/storage/Categories/Thumbnails/';
@@ -82,9 +83,10 @@ class MyHomePageState extends State<MyHomePage> {
 Future<void> _itemCartCount() async {
   await countProductCart();
 }
+  
   Future<void> countProductCart() async {
-    try{
-      int _ItemCount = await productDialogService.countProductCart();
+    try {
+      int _ItemCount = await cartService.countProductCart();
       setState(() {
         _cartItemCount = _ItemCount++;
       }); 
@@ -236,6 +238,8 @@ Future<void> _itemCartCount() async {
             }
           },
         );
+      case 2:
+        return Cart(); //Text('Itens do carrinho aqui');
       case 3:
         return Profile();
       default:
@@ -251,7 +255,7 @@ Future<void> _itemCartCount() async {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-     
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -267,22 +271,21 @@ Future<void> _itemCartCount() async {
         ),
       ),
       body: _selectedIndex == 0
-  ? ListView(
-      children: <Widget>[
-        Visibility(
-          visible: _selectedIndex == 0,
-          child: SizedBox(
-            height: 200,
-            child: BannerWidget(),
-          ),
-        ),
-        Expanded(
-          child: _buildPage(_selectedIndex),
-        ),
-      ],
-    )
-  : _buildPage(_selectedIndex),
-     
+          ? ListView(
+              children: <Widget>[
+                Visibility(
+                  visible: _selectedIndex == 0,
+                  child: SizedBox(
+                    height: 200,
+                    child: BannerWidget(),
+                  ),
+                ),
+                Expanded(
+                  child: _buildPage(_selectedIndex),
+                ),
+              ],
+            )
+          : _buildPage(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -300,33 +303,32 @@ Future<void> _itemCartCount() async {
             icon: Stack(
               children: <Widget>[
                 Icon(Icons.shopping_bag),
-               _cartItemCount != 0
-                ? Positioned(
-                  right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-
-                    child: Text(
-                      '$_cartItemCount',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                )
-                : SizedBox(),
+                _cartItemCount != 0
+                    ? Positioned(
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '$_cartItemCount',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
               ],
-            ), 
+            ),
             label: 'Cart',
           ),
           BottomNavigationBarItem(
