@@ -83,7 +83,7 @@ class CartService {
         'name': product['name'],
         'description': product['description'],
         'quantity': 1,
-        'discount_id': product['discount_id'],
+        //'discount_id': product['discount_id'],
         'price': product['price'],
         'colors': product['colors'],
         'sizes': product['sizes'],
