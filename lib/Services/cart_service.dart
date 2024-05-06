@@ -81,7 +81,10 @@ class CartService {
         'userId': _authUser.uid,
         'user_name': _authUser.displayName,
         'name': product['name'],
+        'description': product['description'],
         'quantity': 1,
+        'discount_id': product['discount_id'],
+        'price': product['price'],
         'colors': product['colors'],
         'sizes': product['sizes'],
         'images': product['images'],
@@ -125,5 +128,25 @@ class CartService {
     catch(e){
       throw Exception('Erro ao carregar lista de produtos no carrinho $e');
     }
+  }
+
+  Future<void> deleteProduct(String productId) async{
+     final _authUser = await _authService.getCurrentUser();
+      if(_authUser == null){
+        throw Exception('usuario não autenticado');
+      }
+
+      final databaseReference = await getDatabase();
+      await databaseReference
+      .child('cart')
+      .child(_authUser.uid)
+      .child(productId)
+      .remove()
+      .then((_){
+        print('Produto removido do carrinho');
+      })
+      .catchError((error) {
+       return Future.error(error);
+      });
   }
 }
