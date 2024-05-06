@@ -5,8 +5,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../Services/auth_service.dart';
 
-class ProductDialogService {
+class CartService {
   final AuthService _authService = AuthService();
+
   Future<DatabaseReference> getDatabase() async {
     final databaseReference = FirebaseDatabase.instance.ref();
     return databaseReference;
@@ -24,6 +25,23 @@ class ProductDialogService {
     else{
       throw Exception('Nenhum produto encontrado');
     }
+  }
+
+  Future<List<String>> getCarts() async {
+    final databaseReference = FirebaseDatabase.instance.ref();
+    DatabaseEvent event = await databaseReference.child('cart').once();
+    DataSnapshot snapshot = event.snapshot;
+
+    List<String> carts = [];
+
+    if(snapshot.value != null){
+      Map<dynamic, dynamic> values = snapshot.value as Map<String, dynamic>;
+
+      values.forEach((key, value) {
+        carts.add(value['cart']);
+      });
+    }
+      return carts;
   }
 
   Future<void> store(Map<String, dynamic>? product) async {
