@@ -12,6 +12,24 @@ class _CartState extends State<Cart> {
   final ApiConfig_apiService = ApiConfig();
   final baseImageUrl = '${ApiConfig.getApiBaseUrl()}/storage/products/';
 
+  Widget _buildBottomDelete(String productId){
+    return Container(
+            width: 40,
+            height: 40,
+            child: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () async {
+                print('delete ${productId}');
+                await cartService.deleteProduct(productId);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${productId} removido com sucesso do carrinho.'),));
+                setState((){
+
+                }); 
+              },
+            ),
+          );
+  }
+
  Widget _buildListProduct(Map<String, dynamic> cart_product) {
   dynamic images = cart_product['images'];
   String firstImageUrl = '';
@@ -44,7 +62,7 @@ class _CartState extends State<Cart> {
               :Container(width: 60, height: 60),
           SizedBox(height: 8,),
           Text(cart_product['name'] ?? ''),
-          Text(cart_product['price'] ?? ''),
+          Text('R\$' + cart_product['price'] ?? ''),
           SizedBox(height: 8),
           //Text('Quantity: ${cart_product['quantity']}'),
           Row(
@@ -69,16 +87,7 @@ class _CartState extends State<Cart> {
             ],
           ),
           SizedBox(height: 10),
-          Container(
-            width: 40,
-            height: 40,
-            child: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: (){
-                print('delete ${cart_product['productId']}');
-              },
-            ),
-          ),
+         _buildBottomDelete(cart_product['productId'].toString()),
 
         ],
       ),
