@@ -83,10 +83,8 @@ class MyHomePageState extends State<MyHomePage> {
 Future<void> _itemCartCount() async {
   await countProductCart();
 }
+  
   Future<void> countProductCart() async {
-    try{
-      int _ItemCount = await productDialogService.countProductCart();
-  Future<void> _countProductCart() async {
     try {
       int _ItemCount = await cartService.countProductCart();
       setState(() {
