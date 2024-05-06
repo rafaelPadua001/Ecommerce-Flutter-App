@@ -23,25 +23,31 @@ class _CartState extends State<Cart> {
                 await cartService.deleteProduct(productId);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${productId} removido com sucesso do carrinho.'),));
                 setState((){
-
+                  
                 }); 
               },
             ),
           );
   }
-
- Widget _buildListProduct(Map<String, dynamic> cart_product) {
+Widget _buildListProduct(Map<String, dynamic> cart_product) {
   dynamic images = cart_product['images'];
   String firstImageUrl = '';
 
-  final productImage =
-      images.split(',')[0].trim().replaceAll(RegExp(r'[\[\]"]'), '');
-
-  if (images is List && images.isNotEmpty) {
-    String firstImage = productImage.toString();
-    firstImageUrl = baseImageUrl + firstImage;
-  } else if (images is String) {
-    firstImageUrl = baseImageUrl + productImage.toString();
+  if (images != null) {
+    if (images is String) {
+      List<String> imageList = images.split(',');
+      if (imageList.isNotEmpty) {
+        String productImage = imageList[0].trim().replaceAll(RegExp(r'[\[\]"]'), '');
+        if (productImage.isNotEmpty) {
+          firstImageUrl = baseImageUrl + productImage;
+        }
+      }
+    } else if (images is List && images.isNotEmpty) {
+      String productImage = images[0].toString().trim().replaceAll(RegExp(r'[\[\]"]'), '');
+      if (productImage.isNotEmpty) {
+        firstImageUrl = baseImageUrl + productImage;
+      }
+    }
   }
 
   return Card(
@@ -54,15 +60,15 @@ class _CartState extends State<Cart> {
           SizedBox(height: 8),
           firstImageUrl.isNotEmpty
               ? Image.network(
-                  firstImageUrl,
-                  width: 10,
-                  height: 10,
+                  firstImageUrl ?? '',
+                  width: 100, // Ajuste o tamanho conforme necessário
+                  height: 100, // Ajuste o tamanho conforme necessário
                   fit: BoxFit.cover,
                 )
-              :Container(width: 60, height: 60),
+              : Container(width: 100, height: 100), // Placeholder de imagem
           SizedBox(height: 8,),
-          Text(cart_product['name'] ?? ''),
-          Text('R\$' + cart_product['price'] ?? ''),
+          Text(cart_product['name'] ?? 'Product Name Not Available'),
+          Text('R\$' + (cart_product['price'] ?? 'Price Not Available')),
           SizedBox(height: 8),
           //Text('Quantity: ${cart_product['quantity']}'),
           Row(
@@ -76,24 +82,21 @@ class _CartState extends State<Cart> {
                   decoration: InputDecoration(
                     labelText: 'Quantity',
                   ),
-                 
                   onChanged: (value){
-                    
-                  
                     // print(value);
                   }
                 ),
-                )
+              )
             ],
           ),
           SizedBox(height: 10),
-         _buildBottomDelete(cart_product['productId'].toString()),
-
+          _buildBottomDelete(cart_product['productId'].toString()),
         ],
       ),
     ),
   );
 }
+
 
   Widget build(BuildContext context) {
     return FutureBuilder(
