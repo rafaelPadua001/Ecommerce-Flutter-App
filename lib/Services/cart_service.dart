@@ -64,7 +64,7 @@ class CartService {
         'images': product['images'],
       });
      
-
+      countProductCart();
     }
     catch(e){
       throw Exception('É necessario estar logado para realizar essa ação $e');
@@ -95,7 +95,8 @@ class CartService {
         }
       }
 
-      print('Usuario possui $productCount em seu carrinho');
+      print('Usuario possui $productCount itens em seu carrinho');
+      
       return productCount;
     }
     catch(e){

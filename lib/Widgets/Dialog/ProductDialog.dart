@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:ecommerce_clone_app/Services/cart_service.dart';
 import 'package:ecommerce_clone_app/main.dart';
+import 'package:ecommerce_clone_app/Services/cart_service.dart';
+
 import 'package:flutter/material.dart';
 import '../../Services/cart_service.dart';
 
@@ -45,23 +46,16 @@ class _ProductDialogState extends State<ProductDialog> {
     }
   }
 
-  
-
   void _sendDataToService(Map<String, dynamic>? product) {
     if (selectedColors.length >= 1 || selectedSizes.length >= 1) {
       product!['sizes'] = selectedSizes;
       product['colors'] = selectedColors;
-   
+      // print(
+      //     'cores e tamanhos selecionados ${selectedColors} / ${selectedSizes}');
+      //  print(product['colors']);
+      //  print(product['size']);
       widget._cartService.store(product);
-      setState(() {
-          ScaffoldMessenger
-          .of(context)
-          .showSnackBar(
-            SnackBar(
-              content: Text('Um novo item foi adicionado ao carrinho'),
-              backgroundColor: Colors.green,
-              ));
-      });
+          
     } else {
       print('nada selecionado');
     }
@@ -119,8 +113,6 @@ class _ProductDialogState extends State<ProductDialog> {
           children: [
             TextButton(
               onPressed: () {
-                // print('Adicionar ao carrinho...');
-                // print(product);
                 _sendDataToService(product);
               },
               child: Text('Add to Cart', style: TextStyle(color: Colors.white)),
