@@ -12,30 +12,46 @@ class _CartState extends State<Cart> {
   final ApiConfig_apiService = ApiConfig();
   final baseImageUrl = '${ApiConfig.getApiBaseUrl()}/storage/products/';
 
-  Widget _buildListProduct(Map<String, dynamic> cart_product) {
-    dynamic images = cart_product['images'];
-    String firstImageUrl = '';
+ Widget _buildListProduct(Map<String, dynamic> cart_product) {
+  dynamic images = cart_product['images'];
+  String firstImageUrl = '';
 
-    final productImage =
-        images.split(',')[0].trim().replaceAll(RegExp(r'[\[\]"]'), '');
-   
-    if (productImage is List && images.isNotEmpty) {
-      String firstImage = productImage.toString();
-      firstImageUrl = baseImageUrl + firstImage;
-    } else if (images is String) {
-      firstImageUrl = baseImageUrl + productImage.toString();
-      
-    }
-    //final imageUrl = baseImageUrl + productImage;
-    // print(imageUrl);
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), 
-      title: Text(cart_product['name']),
-      subtitle: Text('Quantity: ${cart_product['quantity']}'),
-      leading:
-          firstImageUrl.isNotEmpty ? Image.network(firstImageUrl,  width: 60, height: 60, fit: BoxFit.cover) : SizedBox(),
-    );
+  final productImage =
+      images.split(',')[0].trim().replaceAll(RegExp(r'[\[\]"]'), '');
+
+  if (images is List && images.isNotEmpty) {
+    String firstImage = productImage.toString();
+    firstImageUrl = baseImageUrl + firstImage;
+  } else if (images is String) {
+    firstImageUrl = baseImageUrl + productImage.toString();
   }
+
+  return Card(
+    margin: EdgeInsets.all(8.0),
+    child: Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 8),
+          firstImageUrl.isNotEmpty
+              ? Image.network(
+                  firstImageUrl,
+                  width: 10,
+                  height: 10,
+                  fit: BoxFit.cover,
+                )
+              : SizedBox(),
+          Text(cart_product['name']),
+          SizedBox(height: 8),
+          Text('Quantity: ${cart_product['quantity']}'),
+          SizedBox(height: 10,),
+
+        ],
+      ),
+    ),
+  );
+}
 
   Widget build(BuildContext context) {
     return FutureBuilder(
