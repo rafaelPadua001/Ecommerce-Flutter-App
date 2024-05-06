@@ -55,6 +55,15 @@ class _ProductDialogState extends State<ProductDialog> {
       //  print(product['colors']);
       //  print(product['size']);
       widget._cartService.store(product);
+      setState(() {
+          ScaffoldMessenger
+          .of(context)
+          .showSnackBar(
+            SnackBar(
+              content: Text('Um novo item foi adicionado ao carrinho'),
+              backgroundColor: Colors.green,
+              ));
+      });
           
     } else {
       print('nada selecionado');

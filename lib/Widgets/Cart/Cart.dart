@@ -12,30 +12,79 @@ class _CartState extends State<Cart> {
   final ApiConfig_apiService = ApiConfig();
   final baseImageUrl = '${ApiConfig.getApiBaseUrl()}/storage/products/';
 
-  Widget _buildListProduct(Map<String, dynamic> cart_product) {
-    dynamic images = cart_product['images'];
-    String firstImageUrl = '';
+ Widget _buildListProduct(Map<String, dynamic> cart_product) {
+  dynamic images = cart_product['images'];
+  String firstImageUrl = '';
 
-    final productImage =
-        images.split(',')[0].trim().replaceAll(RegExp(r'[\[\]"]'), '');
-   
-    if (productImage is List && images.isNotEmpty) {
-      String firstImage = productImage.toString();
-      firstImageUrl = baseImageUrl + firstImage;
-    } else if (images is String) {
-      firstImageUrl = baseImageUrl + productImage.toString();
-      
-    }
-    //final imageUrl = baseImageUrl + productImage;
-    // print(imageUrl);
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), 
-      title: Text(cart_product['name']),
-      subtitle: Text('Quantity: ${cart_product['quantity']}'),
-      leading:
-          firstImageUrl.isNotEmpty ? Image.network(firstImageUrl,  width: 60, height: 60, fit: BoxFit.cover) : SizedBox(),
-    );
+  final productImage =
+      images.split(',')[0].trim().replaceAll(RegExp(r'[\[\]"]'), '');
+
+  if (images is List && images.isNotEmpty) {
+    String firstImage = productImage.toString();
+    firstImageUrl = baseImageUrl + firstImage;
+  } else if (images is String) {
+    firstImageUrl = baseImageUrl + productImage.toString();
   }
+
+  return Card(
+    margin: EdgeInsets.all(8.0),
+    child: Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 8),
+          firstImageUrl.isNotEmpty
+              ? Image.network(
+                  firstImageUrl,
+                  width: 10,
+                  height: 10,
+                  fit: BoxFit.cover,
+                )
+              :Container(width: 60, height: 60),
+          SizedBox(height: 8,),
+          Text(cart_product['name'] ?? ''),
+          Text(cart_product['price'] ?? ''),
+          SizedBox(height: 8),
+          //Text('Quantity: ${cart_product['quantity']}'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                flex: 2,
+                child: TextFormField(
+                  initialValue: cart_product['quantity']?.toString() ?? '',
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Quantity',
+                  ),
+                 
+                  onChanged: (value){
+                    
+                  
+                    // print(value);
+                  }
+                ),
+                )
+            ],
+          ),
+          SizedBox(height: 10),
+          Container(
+            width: 40,
+            height: 40,
+            child: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: (){
+                print('delete ${cart_product['productId']}');
+              },
+            ),
+          ),
+
+        ],
+      ),
+    ),
+  );
+}
 
   Widget build(BuildContext context) {
     return FutureBuilder(
