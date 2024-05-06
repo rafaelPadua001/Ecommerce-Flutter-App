@@ -45,10 +45,10 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   Widget _currentPage = SearchBarTextField();
   Category category = Category();
@@ -65,26 +65,30 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     categoriesFuture = category.fetchCategories();
-    _countProductCart();
-    //  _currentPage = SearchBarTextField();
-    // _onItemTapped(_selectedIndex);
-    
+    _currentPage = SearchBarTextField();
+    _onItemTapped(_selectedIndex);
+    countProductCart();
   }
 
   @override
   void _onItemTapped(int index) async {
-    await  _countProductCart();
+    await _itemCartCount();
     setState(() {
       _selectedIndex = index;
     });
+  
   }
 
-  Future<void> _countProductCart() async {
+Future<void> _itemCartCount() async {
+  await countProductCart();
+}
+  Future<void> countProductCart() async {
     try{
       int _ItemCount = await productDialogService.countProductCart();
       setState(() {
-        _cartItemCount = _ItemCount;
-      });
+        _cartItemCount = _ItemCount++;
+      }); 
+     
     }
     catch(e){
       throw Exception('erro ao contar itens no carrinho $e');
