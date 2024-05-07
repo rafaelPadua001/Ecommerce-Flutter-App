@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../../Services/cart_service.dart';
 import '../../Services/api_service.dart';
 
@@ -11,7 +12,8 @@ class _CartState extends State<Cart> {
   final CartService cartService = CartService();
   final ApiConfig_apiService = ApiConfig();
   final baseImageUrl = '${ApiConfig.getApiBaseUrl()}/storage/products/';
-
+ 
+ 
   Widget _buildBottomDelete(String productId){
     return Container(
             width: 40,
@@ -29,73 +31,87 @@ class _CartState extends State<Cart> {
             ),
           );
   }
-Widget _buildListProduct(Map<String, dynamic> cart_product) {
-  dynamic images = cart_product['images'];
+
+Widget _buildSumPrice(Map<String, dynamic> product){
+  return Text('Total price: ${product['price'] + '+(frete)'}');
+}
+Widget _buildListProduct(Map<String, dynamic> cartProduct) {
+  final dynamic images = cartProduct['images'];
+
   String firstImageUrl = '';
 
   if (images != null) {
     if (images is String) {
-      List<String> imageList = images.split(',');
+      final List<String> imageList = images.split(',');
       if (imageList.isNotEmpty) {
-        String productImage = imageList[0].trim().replaceAll(RegExp(r'[\[\]"]'), '');
+        final String productImage = imageList.first.trim().replaceAll(RegExp(r'[\[\]"]'), '');
         if (productImage.isNotEmpty) {
           firstImageUrl = baseImageUrl + productImage;
         }
       }
     } else if (images is List && images.isNotEmpty) {
-      String productImage = images[0].toString().trim().replaceAll(RegExp(r'[\[\]"]'), '');
+      final String productImage = images.first.toString().trim().replaceAll(RegExp(r'[\[\]"]'), '');
       if (productImage.isNotEmpty) {
         firstImageUrl = baseImageUrl + productImage;
       }
     }
   }
 
-  return Card(
+  return Column(
+    children: [
+      Card(
     margin: EdgeInsets.all(8.0),
     child: Padding(
       padding: EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+           SizedBox(height: 8),
+          if (firstImageUrl.isNotEmpty)
+            Image.network(
+              firstImageUrl,
+              width: 100, // Ajuste o tamanho conforme necessário
+              height: 100, // Ajuste o tamanho conforme necessário
+              fit: BoxFit.cover,
+            )
+          else
+            Container(width: 100, height: 100, color: Colors.grey), // Placeholder de imagem
           SizedBox(height: 8),
-          firstImageUrl.isNotEmpty
-              ? Image.network(
-                  firstImageUrl ?? '',
-                  width: 100, // Ajuste o tamanho conforme necessário
-                  height: 100, // Ajuste o tamanho conforme necessário
-                  fit: BoxFit.cover,
-                )
-              : Container(width: 100, height: 100), // Placeholder de imagem
-          SizedBox(height: 8,),
-          Text(cart_product['name'] ?? 'Product Name Not Available'),
-          Text('R\$' + (cart_product['price'] ?? 'Price Not Available')),
+          Text(cartProduct['name'] ?? 'Product Name Not Available'),
+          Text('R\$' + (cartProduct['price'] ?? 'Price Not Available')),
           SizedBox(height: 8),
-          //Text('Quantity: ${cart_product['quantity']}'),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
                 flex: 2,
                 child: TextFormField(
-                  initialValue: cart_product['quantity']?.toString() ?? '',
+                  initialValue: cartProduct['quantity']?.toString() ?? '',
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Quantity',
                   ),
-                  onChanged: (value){
+                  onChanged: (value) {
                     // print(value);
-                  }
+                  },
                 ),
-              )
+              ),
             ],
           ),
           SizedBox(height: 10),
-          _buildBottomDelete(cart_product['productId'].toString()),
+          _buildBottomDelete(cartProduct['productId'].toString()),
+          _buildSumPrice(cartProduct),
         ],
       ),
     ),
+    
+  ),
+   _buildSumPrice(cartProduct), 
+    ],
   );
+  
 }
+
 
 
   Widget build(BuildContext context) {
@@ -117,8 +133,9 @@ Widget _buildListProduct(Map<String, dynamic> cart_product) {
               itemBuilder: (context, index) {
                 final cart_product = snapshot.data![index];
                 // Aqui você pode criar uma ListTile para cada item do carrinho
-
+                
                 return _buildListProduct(cart_product);
+
               },
             );
           } else {
