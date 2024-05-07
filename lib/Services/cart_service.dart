@@ -39,12 +39,12 @@ class CartService {
     DataSnapshot snapshot = event.snapshot;
 
     if (!snapshot.exists) {
-      // Se o nó não existir, retorna uma lista vazia
+      
       return [];
     }
 
     if (snapshot.value is List) {
-      // Se os dados são uma lista, converte para uma lista de mapas
+    
       List<dynamic> values = snapshot.value as List<dynamic>;
    
       List<Map<String, dynamic>> carts = [];
@@ -55,12 +55,12 @@ class CartService {
       });
       return carts;
     } else if (snapshot.value is Map) {
-      // Se os dados são um mapa, converte para uma lista de um único mapa
+     
       Map<dynamic, dynamic> value = snapshot.value as Map<dynamic, dynamic>;
       print(snapshot.value);
       return [Map<String, dynamic>.from(value)];
     } else {
-      // Se os dados não estão em um formato esperado, lança uma exceção
+     
       throw Exception('Formato de dados não reconhecido');
     }
   } catch (e) {

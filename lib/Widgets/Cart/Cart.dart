@@ -21,13 +21,17 @@ class _CartState extends State<Cart> {
 
   Future<void> _buildSumPrice() async {
     final List<Map<String, dynamic>> cartProduct = await cartService.getCarts();
+
     double total = 0;
     for (final product in cartProduct) {
-      total += double.parse(product['price']);
+      final dynamic price = product['price'];
+      if (price != null) {
+        total += double.parse(price.toString());
+      }
     }
+
     setState(() {
       totalPrice = total;
-      print(totalPrice);
     });
   }
 
@@ -54,7 +58,7 @@ class _CartState extends State<Cart> {
 
     String firstImageUrl = '';
 
-    if (images != null) {
+    if (images != null && images.isNotEmpty) {
       if (images is String) {
         final List<String> imageList = images.split(',');
         if (imageList.isNotEmpty) {
@@ -64,9 +68,9 @@ class _CartState extends State<Cart> {
             firstImageUrl = baseImageUrl + productImage;
           }
         }
-      } else if (images is List && images.isNotEmpty) {
+      } else if (images is List<String> && images.isNotEmpty) {
         final String productImage =
-            images.first.toString().trim().replaceAll(RegExp(r'[\[\]"]'), '');
+            images.first.trim().replaceAll(RegExp(r'[\[\]"]'), '');
         if (productImage.isNotEmpty) {
           firstImageUrl = baseImageUrl + productImage;
         }
@@ -83,21 +87,25 @@ class _CartState extends State<Cart> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 8),
-                if (firstImageUrl.isNotEmpty)
+                if (firstImageUrl
+                    .isNotEmpty) // Verifique se firstImageUrl não está vazio antes de exibir a imagem
                   Image.network(
                     firstImageUrl,
-                    width: 100, // Ajuste o tamanho conforme necessário
-                    height: 100, // Ajuste o tamanho conforme necessário
+                    width: 100,
+                    height: 100,
                     fit: BoxFit.cover,
                   )
                 else
                   Container(
-                      width: 100,
-                      height: 100,
-                      color: Colors.grey), // Placeholder de imagem
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey, // Placeholder de imagem
+                  ),
                 SizedBox(height: 8),
                 Text(cartProduct['name'] ?? 'Product Name Not Available'),
-                Text('R\$' + (cartProduct['price'] ?? 'Price Not Available')),
+                Text('R\$' +
+                    (cartProduct['price']?.toString() ??
+                        'Price Not Available')),
                 SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,37 +137,42 @@ class _CartState extends State<Cart> {
 
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: cartService.getCarts(),
-        builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                  'Nenhum carrinho de compras encontrado  ${snapshot.error}'),
-            );
-          } else if (snapshot.hasData) {
-            return Column(
-              children: [
-                Text('Total price R\$ ${totalPrice.toStringAsFixed(2)}'),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      final cart_product = snapshot.data![index];
-                      // Aqui você pode criar uma ListTile para cada item do carrinho
-
-                      return _buildListProduct(cart_product);
-                    },
-                  ),
+      future: cartService.getCarts(),
+      builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Erro ao carregar os itens do carrinho: ${snapshot.error}',
+            ),
+          );
+        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          return Column(
+            children: [
+              Text(
+                'Total: R\$ ${totalPrice.toStringAsFixed(2)}',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    final cartProduct = snapshot.data![index];
+                    return _buildListProduct(cartProduct);
+                  },
                 ),
-              ],
-            );
-          } else {
-            return Text('Nenhum produto encontrado');
-          }
-        });
+              ),
+            ],
+          );
+        } else {
+          return Center(
+            child: Text('Nenhum produto encontrado'),
+          );
+        }
+      },
+    );
   }
 }
