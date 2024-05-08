@@ -279,7 +279,9 @@ class _ProductDialogState extends State<ProductDialog> {
     Color pressedColor = Colors.red;
     Color boxDecoration = chipColor;
     String selectedSize = '';
-
+    if(size == 'null'){
+      size = 'unique';
+    }
     return InkWell(
       splashColor: pressedColor,
       child: ChoiceChip(

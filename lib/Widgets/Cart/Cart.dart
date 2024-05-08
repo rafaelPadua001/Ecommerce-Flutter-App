@@ -53,27 +53,86 @@ class _CartState extends State<Cart> {
     );
   }
 
+  Widget _buildColorCircles(dynamic colors) {
+    List<String> colorList = [];
+
+    if (colors is String) {
+     
+      colorList.add(colors);
+    } else if (colors is List<dynamic>) {
+     
+      colorList = List<String>.from(colors);
+    } else {
+     
+      return Text('Formato de cores não suportado');
+    }
+
+    
+    return Row(
+      children: colorList.map((color) {
+        return Container(
+          width: 24,
+          height: 24,
+          margin: EdgeInsets.only(right: 8),
+          decoration: BoxDecoration(
+            color: Color(int.parse(color, radix: 16) + 0xFF000000),
+            shape: BoxShape.circle,
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildChipSize(dynamic sizes){
+    List<String> sizeList = [];
+
+    if(sizes is String){
+      sizeList.add(sizes);
+    }
+    else if(sizes is List<dynamic>){
+      sizeList = List<String>.from(sizes);
+    }
+    else{
+      return Text('Formato de tamanho não suportado');
+    }
+
+    return Wrap(
+      children: sizeList.map((size) {
+        return Chip(
+          label: Text(size),
+          backgroundColor: Colors.grey[300],
+          labelStyle: TextStyle(color: Colors.black),
+        );
+      }).toList(),
+    );
+  }
   Widget _buildListProduct(Map<String, dynamic> cartProduct) {
+    final dynamic colors = cartProduct['colors'];
+    final dynamic sizes = cartProduct['sizes'];
     final dynamic images = cartProduct['images'];
 
     String firstImageUrl = '';
 
     if (images != null && images.isNotEmpty) {
-      if (images is String) {
-        final List<String> imageList = images.split(',');
-        if (imageList.isNotEmpty) {
+      try {
+        if (images is String) {
+          final List<String> imageList = images.split(',');
+          if (imageList.isNotEmpty) {
+            final String productImage =
+                imageList.first.trim().replaceAll(RegExp(r'[\[\]"]'), '');
+            if (productImage.isNotEmpty) {
+              firstImageUrl = baseImageUrl + productImage;
+            }
+          }
+        } else if (images is List<String> && images.isNotEmpty) {
           final String productImage =
-              imageList.first.trim().replaceAll(RegExp(r'[\[\]"]'), '');
+              images.first.trim().replaceAll(RegExp(r'[\[\]"]'), '');
           if (productImage.isNotEmpty) {
             firstImageUrl = baseImageUrl + productImage;
           }
         }
-      } else if (images is List<String> && images.isNotEmpty) {
-        final String productImage =
-            images.first.trim().replaceAll(RegExp(r'[\[\]"]'), '');
-        if (productImage.isNotEmpty) {
-          firstImageUrl = baseImageUrl + productImage;
-        }
+      } catch (e) {
+        print('Erro ao processar imagens: $e');
       }
     }
 
@@ -87,25 +146,21 @@ class _CartState extends State<Cart> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 8),
-                if (firstImageUrl
-                    .isNotEmpty) // Verifique se firstImageUrl não está vazio antes de exibir a imagem
-                  Image.network(
-                    firstImageUrl,
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  )
-                else
-                  Container(
-                    width: 100,
-                    height: 100,
-                    color: Colors.grey, // Placeholder de imagem
-                  ),
+                // Verifique se firstImageUrl não está vazio antes de exibir a imagem
+                Image.network(
+                  firstImageUrl,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
                 SizedBox(height: 8),
-                Text(cartProduct['name'] ?? 'Product Name Not Available'),
-                Text('R\$' +
-                    (cartProduct['price']?.toString() ??
-                        'Price Not Available')),
+                Text(cartProduct['name'].toString() ?? ''),
+                Text('R\$' + (cartProduct['price'].toString()) ?? ''),
+
+                _buildColorCircles(colors),
+                SizedBox(height: 8),
+                Text('Sizes:'),
+                _buildChipSize(sizes),
                 SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -113,7 +168,7 @@ class _CartState extends State<Cart> {
                     Flexible(
                       flex: 2,
                       child: TextFormField(
-                        initialValue: cartProduct['quantity']?.toString() ?? '',
+                        initialValue: cartProduct['quantity'].toString(),
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: 'Quantity',
@@ -126,6 +181,7 @@ class _CartState extends State<Cart> {
                   ],
                 ),
                 SizedBox(height: 10),
+
                 _buildBottomDelete(cartProduct['productId'].toString()),
               ],
             ),
