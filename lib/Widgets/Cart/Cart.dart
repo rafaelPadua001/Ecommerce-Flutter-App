@@ -20,19 +20,25 @@ class _CartState extends State<Cart> {
   }
 
   Future<void> _buildSumPrice() async {
-    final List<Map<String, dynamic>> cartProduct = await cartService.getCarts();
+    try {
+      final List<Map<String, dynamic>> cartProducts =
+          await cartService.getCarts();
 
-    double total = 0;
-    for (final product in cartProduct) {
-      final dynamic price = product['price'];
-      if (price != null) {
-        total += double.parse(price.toString());
+      double total = 0;
+      for (final product in cartProducts) {
+        final dynamic price = product['price'];
+        if (price != null) {
+          total += double.parse(price.toString());
+        }
       }
-    }
 
-    setState(() {
-      totalPrice = total;
-    });
+      setState(() {
+        totalPrice = total;
+      });
+    } catch (e) {
+      print('Erro ao carregar os itens do carrinho: $e');
+      // Tratar erro de carregamento do carrinho aqui
+    }
   }
 
   Widget _buildBottomDelete(String productId) {
@@ -42,32 +48,97 @@ class _CartState extends State<Cart> {
       child: IconButton(
         icon: Icon(Icons.delete),
         onPressed: () async {
-          print('delete ${productId}');
-          await cartService.deleteProduct(productId);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('${productId} removido com sucesso do carrinho.'),
-          ));
-          setState(() {});
+          try {
+            print('delete $productId');
+            await cartService.deleteProduct(productId);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('$productId removido com sucesso do carrinho.'),
+            ));
+            setState(() {
+              _buildSumPrice();
+            });
+          } catch (e) {
+            print('Erro ao excluir o produto: $e');
+          }
         },
       ),
     );
+  }
+
+  Widget __buildProductImgs(dynamic images) {
+    List<String> imageList = [];
+
+    if (images is String) {
+      images = images.replaceAll(RegExp(r'[\[\]"]'), '');
+      imageList = images.split(',');
+    } else if (images is List<String>) {
+      imageList = List<String>.from(images);
+    } else {
+      return SizedBox();
+    }
+
+    if (imageList.isNotEmpty) {
+      String firstImage = baseImageUrl + imageList.first.trim();
+      return Image.network(
+        firstImage,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return SizedBox();
+    }
+  }
+
+  Widget _buildProductName(dynamic names) {
+    List<String> nameList = [];
+
+    if (names is String) {
+      nameList.add(names);
+    } else if (names is List<String>) {
+      nameList = List<String>.from(names);
+    } else {
+      return Text('Formato de nomes não suportado');
+    }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Text(names),
+      ],
+    );
+  }
+
+  Widget _buildProductPrice(dynamic prices) {
+    List<String> priceList = [];
+    if (prices is String) {
+      priceList.add(prices);
+    } else if (prices is List<String>) {
+      priceList = List<String>.from(prices);
+    } else {
+      return SizedBox();
+    }
+
+    if (priceList.isNotEmpty) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: priceList.map((price) => Text(price)).toList(),
+      );
+    } else {
+      return SizedBox();
+    }
   }
 
   Widget _buildColorCircles(dynamic colors) {
     List<String> colorList = [];
 
     if (colors is String) {
-     
       colorList.add(colors);
     } else if (colors is List<dynamic>) {
-     
       colorList = List<String>.from(colors);
     } else {
-     
       return Text('Formato de cores não suportado');
     }
 
-    
     return Row(
       children: colorList.map((color) {
         return Container(
@@ -83,16 +154,14 @@ class _CartState extends State<Cart> {
     );
   }
 
-  Widget _buildChipSize(dynamic sizes){
+  Widget _buildChipSize(dynamic sizes) {
     List<String> sizeList = [];
 
-    if(sizes is String){
+    if (sizes is String) {
       sizeList.add(sizes);
-    }
-    else if(sizes is List<dynamic>){
+    } else if (sizes is List<dynamic>) {
       sizeList = List<String>.from(sizes);
-    }
-    else{
+    } else {
       return Text('Formato de tamanho não suportado');
     }
 
@@ -106,35 +175,14 @@ class _CartState extends State<Cart> {
       }).toList(),
     );
   }
+
   Widget _buildListProduct(Map<String, dynamic> cartProduct) {
     final dynamic colors = cartProduct['colors'];
     final dynamic sizes = cartProduct['sizes'];
-    final dynamic images = cartProduct['images'];
 
-    String firstImageUrl = '';
-
-    if (images != null && images.isNotEmpty) {
-      try {
-        if (images is String) {
-          final List<String> imageList = images.split(',');
-          if (imageList.isNotEmpty) {
-            final String productImage =
-                imageList.first.trim().replaceAll(RegExp(r'[\[\]"]'), '');
-            if (productImage.isNotEmpty) {
-              firstImageUrl = baseImageUrl + productImage;
-            }
-          }
-        } else if (images is List<String> && images.isNotEmpty) {
-          final String productImage =
-              images.first.trim().replaceAll(RegExp(r'[\[\]"]'), '');
-          if (productImage.isNotEmpty) {
-            firstImageUrl = baseImageUrl + productImage;
-          }
-        }
-      } catch (e) {
-        print('Erro ao processar imagens: $e');
-      }
-    }
+    final dynamic productName = cartProduct['name'];
+    final dynamic productPrice = cartProduct['price'];
+    final dynamic productImgs = cartProduct['images'];
 
     return Column(
       children: [
@@ -146,17 +194,10 @@ class _CartState extends State<Cart> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 8),
-                // Verifique se firstImageUrl não está vazio antes de exibir a imagem
-                Image.network(
-                  firstImageUrl,
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
-                ),
+                __buildProductImgs(productImgs),
                 SizedBox(height: 8),
-                Text(cartProduct['name'].toString() ?? ''),
-                Text('R\$' + (cartProduct['price'].toString()) ?? ''),
-
+                _buildProductName(productName),
+                _buildProductPrice(productPrice),
                 _buildColorCircles(colors),
                 SizedBox(height: 8),
                 Text('Sizes:'),
@@ -181,7 +222,6 @@ class _CartState extends State<Cart> {
                   ],
                 ),
                 SizedBox(height: 10),
-
                 _buildBottomDelete(cartProduct['productId'].toString()),
               ],
             ),
