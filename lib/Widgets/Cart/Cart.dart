@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import '../../Services/cart_service.dart';
@@ -65,6 +66,19 @@ class _CartState extends State<Cart> {
     );
   }
 
+  Widget __buildCheckoutButton() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        CupertinoButton(
+            child: Text('Checkout'),
+            onPressed: () {
+              print('Botão de checkout clicado');
+            }),
+      ],
+    );
+  }
+
   Widget __buildProductImgs(dynamic images) {
     List<String> imageList = [];
 
@@ -121,7 +135,7 @@ class _CartState extends State<Cart> {
     if (priceList.isNotEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: priceList.map((price) => Text(price)).toList(),
+        children: priceList.map((price) => Text(price + '+(frete)')).toList(),
       );
     } else {
       return SizedBox();
@@ -183,52 +197,55 @@ class _CartState extends State<Cart> {
     final dynamic productName = cartProduct['name'];
     final dynamic productPrice = cartProduct['price'];
     final dynamic productImgs = cartProduct['images'];
-
-    return Column(
-      children: [
-        Card(
-          margin: EdgeInsets.all(8.0),
-          child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 8),
-                __buildProductImgs(productImgs),
-                SizedBox(height: 8),
-                _buildProductName(productName),
-                _buildProductPrice(productPrice),
-                _buildColorCircles(colors),
-                SizedBox(height: 8),
-                Text('Sizes:'),
-                _buildChipSize(sizes),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      flex: 2,
-                      child: TextFormField(
-                        initialValue: cartProduct['quantity'].toString(),
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Quantity',
+    if (cartProduct['id'].toString().length >= 1) {
+      return Column(
+        children: [
+          Card(
+            margin: EdgeInsets.all(8.0),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 8),
+                  __buildProductImgs(productImgs),
+                  SizedBox(height: 8),
+                  _buildProductName(productName),
+                  _buildProductPrice(productPrice),
+                  _buildColorCircles(colors),
+                  SizedBox(height: 8),
+                  Text('Sizes:'),
+                  _buildChipSize(sizes),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        flex: 2,
+                        child: TextFormField(
+                          initialValue: cartProduct['quantity'].toString(),
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Quantity',
+                          ),
+                          onChanged: (value) {
+                            // print(value);
+                          },
                         ),
-                        onChanged: (value) {
-                          // print(value);
-                        },
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                _buildBottomDelete(cartProduct['productId'].toString()),
-              ],
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  _buildBottomDelete(cartProduct['productId'].toString()),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    } else {
+      return Container();
+    }
   }
 
   Widget build(BuildContext context) {
@@ -261,6 +278,7 @@ class _CartState extends State<Cart> {
                   },
                 ),
               ),
+               __buildCheckoutButton(),
             ],
           );
         } else {
