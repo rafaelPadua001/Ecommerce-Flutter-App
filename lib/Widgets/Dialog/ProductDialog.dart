@@ -78,12 +78,59 @@ class _ProductDialogState extends State<ProductDialog> {
         CupertinoButton(
           child: Text('Delivery calculate'),
           onPressed: (){
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Click no frete !')));
+            _buildDeliveryDialog(context);
+            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Click no frete !')));
           })
       ],
     );
   }
 
+  void _buildDeliveryDialog(BuildContext context){
+    showDialog(
+    context: context,
+    builder: (BuildContext context){
+      return AlertDialog(
+        title: Text('Delivery calculate'),
+        content: _buildDeliveryDialogContent(),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Close'),
+          ),
+        ],
+      );
+    }
+  );
+  }
+
+  Widget _buildDeliveryDialogContent(){
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
+      Text('This is a fullscreen dialog'),
+      SizedBox(height: 8,),
+      _buildTextFieldZipCode(),
+    ],
+  );
+}
+
+Widget _buildTextFieldZipCode(){
+  return TextField(
+    decoration: InputDecoration(
+      labelText: 'Zip-Code',
+      hintText: 'Insert zip code',
+      border: OutlineInputBorder(),
+    ),
+    keyboardType: TextInputType.number,
+    maxLength: 8,
+    onChanged: (value) {
+      print(value);
+    },
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
