@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_clone_app/main.dart';
 import 'package:ecommerce_clone_app/Services/cart_service.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import '../../Services/cart_service.dart';
@@ -70,6 +71,19 @@ class _ProductDialogState extends State<ProductDialog> {
     }
   }
 
+  Widget _buildDeliveryButton(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CupertinoButton(
+          child: Text('Delivery calculate'),
+          onPressed: (){
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Click no frete !')));
+          })
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,6 +117,7 @@ class _ProductDialogState extends State<ProductDialog> {
                     _buildProductDetails(product!),
                     if (cleanColors.isNotEmpty) _buildColorSection(cleanColors),
                     if (cleanSizes.isNotEmpty) _buildSizeSection(cleanSizes),
+                    _buildDeliveryButton(),
                     _buildDescriptionSection(product!),
                   ],
                 ),
