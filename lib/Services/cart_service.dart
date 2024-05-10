@@ -26,89 +26,59 @@ class CartService {
       throw Exception('Nenhum produto encontrado');
     }
   }
-  Future <List<Map<String, dynamic>>> getCarts() async {
-    try{
+
+  Future<List<Map<String, dynamic>>> getCarts() async {
+    try {
       final _authUser = await _authService.getCurrentUser();
       if (_authUser == null) {
         throw Exception('Usuário não autenticado');
       }
 
-      final databaseReference = await getDatabase();
+      final databaseReference = FirebaseDatabase.instance.ref();
       DatabaseEvent event =
           await databaseReference.child('cart').child(_authUser.uid).once();
       DataSnapshot snapshot = event.snapshot;
-      List<Map<String, dynamic>> cart = []; 
 
-      if(snapshot.value != null){
-        Map<String,dynamic> cartData = Map<String, dynamic>.from(snapshot.value as Map<Object?, Object?>);
-        cartData.forEach((key, value) {
-          cart.add({
-            'id': key,
-            'name': value['name'],
-            'price': value['price'],
-            'quantity': value['quantity'],
-            'colors': value['colors'],
-            'sizes': value['sizes'],
-            'productId': value['productId'],
-            'images': value['images'],
-            'userId': value['userId'],
-            
-          });
-        });
+      if (!snapshot.exists) {
+        return [];
       }
 
-      return cart;
+      if (snapshot.value is List) {
+        try {
+          List<dynamic> values = snapshot.value as List<dynamic>;
 
+          List<Map<String, dynamic>> carts = [];
+          values.forEach((value) {
+            if (value is Map) {
+              carts.add(Map<String, dynamic>.from(value));
+            }
+          });
+          return carts;
+        } catch (e) {
+          throw Exception('Error ${e}');
+        }
+      } else if (snapshot.value is Map) {
+        try{
+          Map<dynamic, dynamic> value = snapshot.value as Map<dynamic, dynamic>;
+          //print(snapshot.value);
+          return [Map<String, dynamic>.from(value)];
+        }
+        catch(e){
+          throw Exception('Error ${e}');
+        }
+       
+      } else {
+        throw Exception('Formato de dados não reconhecido');
+      }
+    } catch (e) {
+      throw Exception('$e');
     }
-    catch(e){throw Exception('Error: ${e}');}
   }
 
-  Future<void> store(Map<String, dynamic>? product) async {
-    try {
-      User? _authUser = await _authService.getCurrentUser();
-      final DatabaseReference databaseReference = await getDatabase();
-
-      await databaseReference
-          .child('cart')
-          .child(_authUser!.uid)
-         // .child(product!['id'].toString())
-          .push()
-          .set({
-        'productId': product!['id'],
-        'userId': _authUser.uid,
-        'user_name': _authUser.displayName,
-        'name': product['name'],
-        'description': product['description'],
-        'quantity': 1,
-        //'discount_id': product['discount_id'],
-        'price': product['price'],
-        'colors': product['colors'],
-        'sizes': product['sizes'],
-        'images': product['images'],
-      });
-    final Map<String, dynamic> cartItem = {
-      'productId': product['id'],
-      'userId': _authUser.uid,
-      'user_name': _authUser.displayName,
-      'name': product['name'],
-      'description': product['description'],
-      'quantity': 1,
-      //'discount_id': product['discount_id'],
-      'price': product['price'],
-      'colors': product['colors'],
-      'sizes': product['sizes'],
-      'images': product['images'],
-    };
-
-    await databaseReference
-        .child('cart')
-        .child(_authUser.uid)
-        .child(product['id'].toString())
-        .set(cartItem);
-
-      countProductCart();
-    } catch (e) {
-      throw Exception('É necessario estar logado para realizar essa ação $e');
+ Future<void> store(Map<String, dynamic>? product) async {
+  try {
+    if (product == null || product.isEmpty) {
+      throw Exception('Produto inválido');
     }
 
     User? _authUser = await _authService.getCurrentUser();
