@@ -27,93 +27,73 @@ class CartService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getCarts() async {
-    try {
+   Future <List<Map<String, dynamic>>> getCarts() async {
+    try{
       final _authUser = await _authService.getCurrentUser();
       if (_authUser == null) {
         throw Exception('Usuário não autenticado');
       }
 
-      final databaseReference = FirebaseDatabase.instance.ref();
+      final databaseReference = await getDatabase();
       DatabaseEvent event =
           await databaseReference.child('cart').child(_authUser.uid).once();
       DataSnapshot snapshot = event.snapshot;
+      List<Map<String, dynamic>> cart = []; 
 
-      if (!snapshot.exists) {
-        return [];
-      }
-
-      if (snapshot.value is List) {
-        try {
-          List<dynamic> values = snapshot.value as List<dynamic>;
-
-          List<Map<String, dynamic>> carts = [];
-          values.forEach((value) {
-            if (value is Map) {
-              carts.add(Map<String, dynamic>.from(value));
-            }
+      if(snapshot.value != null){
+        Map<String,dynamic> cartData = Map<String, dynamic>.from(snapshot.value as Map<Object?, Object?>);
+        cartData.forEach((key, value) {
+          cart.add({
+            'id': key,
+            'name': value['name'],
+            'price': value['price'],
+            'quantity': value['quantity'],
+            'colors': value['colors'],
+            'sizes': value['sizes'],
+            'productId': value['productId'],
+            'images': value['images'],
+            'userId': value['userId'],
+            
           });
-          return carts;
-        } catch (e) {
-          throw Exception('Error ${e}');
-        }
-      } else if (snapshot.value is Map) {
-        try{
-          Map<dynamic, dynamic> value = snapshot.value as Map<dynamic, dynamic>;
-          //print(snapshot.value);
-          return [Map<String, dynamic>.from(value)];
-        }
-        catch(e){
-          throw Exception('Error ${e}');
-        }
-       
-      } else {
-        throw Exception('Formato de dados não reconhecido');
+        });
       }
-    } catch (e) {
-      throw Exception('$e');
+
+      return cart;
+
     }
+    catch(e){throw Exception('Error: ${e}');}
   }
+
 
  Future<void> store(Map<String, dynamic>? product) async {
-  try {
-    if (product == null || product.isEmpty) {
-      throw Exception('Produto inválido');
+    try {
+      User? _authUser = await _authService.getCurrentUser();
+      final DatabaseReference databaseReference = await getDatabase();
+
+      await databaseReference
+          .child('cart')
+          .child(_authUser!.uid)
+         // .child(product!['id'].toString())
+          .push()
+          .set({
+        'productId': product!['id'],
+        'userId': _authUser.uid,
+        'user_name': _authUser.displayName,
+        'name': product['name'],
+        'description': product['description'],
+        'quantity': 1,
+        //'discount_id': product['discount_id'],
+        'price': product['price'],
+        'colors': product['colors'],
+        'sizes': product['sizes'],
+        'images': product['images'],
+      });
+
+      countProductCart();
+    } catch (e) {
+      throw Exception('É necessario estar logado para realizar essa ação $e');
     }
-
-    User? _authUser = await _authService.getCurrentUser();
-    if (_authUser == null) {
-      throw Exception('Usuário não autenticado');
-    }
-
-    final DatabaseReference databaseReference = await getDatabase();
-
-    final Map<String, dynamic> cartItem = {
-      'productId': product['id'],
-      'userId': _authUser.uid,
-      'user_name': _authUser.displayName,
-      'name': product['name'],
-      'description': product['description'],
-      'quantity': 1,
-      //'discount_id': product['discount_id'],
-      'price': product['price'],
-      'colors': product['colors'],
-      'sizes': product['sizes'],
-      'images': product['images'],
-    };
-
-    await databaseReference
-        .child('cart')
-        .child(_authUser.uid)
-        .child(product['id'].toString())
-        .set(cartItem);
-
-    // Atualizar contagem de produtos no carrinho após a gravação bem-sucedida
-    countProductCart();
-  } catch (e) {
-    throw Exception('Erro ao armazenar o produto no carrinho: $e');
   }
-}
 
 
   Future<int> countProductCart() async {
