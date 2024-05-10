@@ -42,7 +42,7 @@ class _CartState extends State<Cart> {
     }
   }
 
-  Widget _buildBottomDelete(String productId) {
+  Widget _buildBottomDelete(String id) {
     return Container(
       width: 40,
       height: 40,
@@ -50,10 +50,10 @@ class _CartState extends State<Cart> {
         icon: Icon(Icons.delete),
         onPressed: () async {
           try {
-            print('delete $productId');
-            await cartService.deleteProduct(productId);
+            print('delete $id');
+            await cartService.deleteProduct(id);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('$productId removido com sucesso do carrinho.'),
+              content: Text('produto removido com sucesso do carrinho.'),
             ));
             setState(() {
               _buildSumPrice();
@@ -236,7 +236,7 @@ class _CartState extends State<Cart> {
                     ],
                   ),
                   SizedBox(height: 10),
-                  _buildBottomDelete(cartProduct['productId'].toString()),
+                  _buildBottomDelete(cartProduct['id'].toString()),
                 ],
               ),
             ),
