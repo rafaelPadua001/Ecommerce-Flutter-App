@@ -127,7 +127,7 @@ class CartService {
     }
   }
 
-  Future<void> deleteProduct(String productId) async {
+  Future<void> deleteProduct(String id) async {
     final _authUser = await _authService.getCurrentUser();
     if (_authUser == null) {
       throw Exception('usuario não autenticado');
@@ -137,7 +137,7 @@ class CartService {
     await databaseReference
         .child('cart')
         .child(_authUser.uid)
-        .child(productId)
+        .child(id)
         .remove()
         .then((_) {
       print('Produto removido do carrinho');

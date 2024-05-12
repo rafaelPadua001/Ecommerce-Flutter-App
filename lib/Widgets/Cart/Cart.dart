@@ -1,6 +1,8 @@
+import 'package:ecommerce_clone_app/Model/CartModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 import '../../Services/cart_service.dart';
 import '../../Services/api_service.dart';
 
@@ -42,7 +44,7 @@ class _CartState extends State<Cart> {
     }
   }
 
-  Widget _buildBottomDelete(String id) {
+  Widget _buildBottomDelete(Map<String, dynamic> cartProduct) {
     return Container(
       width: 40,
       height: 40,
@@ -50,14 +52,14 @@ class _CartState extends State<Cart> {
         icon: Icon(Icons.delete),
         onPressed: () async {
           try {
-            print('delete $id');
-            await cartService.deleteProduct(id);
+            print('delete ${cartProduct['id']}');
+            await cartService.deleteProduct(cartProduct['id']);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('produto removido com sucesso do carrinho.'),
             ));
-            setState(() {
-              _buildSumPrice();
-            });
+            _buildSumPrice();
+              Provider.of<CartModel>(context, listen: false).removeItem(cartProduct);
+            
           } catch (e) {
             print('Erro ao excluir o produto: $e');
           }
@@ -236,7 +238,7 @@ class _CartState extends State<Cart> {
                     ],
                   ),
                   SizedBox(height: 10),
-                  _buildBottomDelete(cartProduct['id'].toString()),
+                  _buildBottomDelete(cartProduct),
                 ],
               ),
             ),
