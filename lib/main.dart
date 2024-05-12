@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'Widgets/SearchBarTextField.dart';
 import 'Widgets/Products/Products.dart';
@@ -12,13 +13,23 @@ import 'Services/category_service.dart';
 import 'Services/subcategory_service.dart';
 import 'Services/banner_service.dart';
 import 'Services/cart_service.dart';
+import 'Model/CartModel.dart';
+
 
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+ 
+   runApp(
+    ChangeNotifierProvider(
+      create: (context) => CartModel(),
+      child: MyApp(),
+    ),
+  );
+   
 }
 
 class MyApp extends StatelessWidget {
@@ -300,37 +311,41 @@ Future<void> _itemCartCount() async {
             label: 'Categories',
           ),
           BottomNavigationBarItem(
-            icon: Stack(
-              children: <Widget>[
-                Icon(Icons.shopping_bag),
-                _cartItemCount != 0
-                    ? Positioned(
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: Text(
-                            '$_cartItemCount',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
+              icon: Consumer<CartModel>(
+                builder: (context, cart, child) {
+                  final itemCount = cart.items.length;
+                  return Stack(
+                    children: [
+                      Icon(Icons.shopping_cart),
+                      if (itemCount > 0)
+                        Positioned(
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            textAlign: TextAlign.center,
+                            constraints: BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              '$itemCount',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
-                      )
-                    : SizedBox(),
-              ],
+                    ],
+                  );
+                },
+              ),
+              label: 'Cart',
             ),
-            label: 'Cart',
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',

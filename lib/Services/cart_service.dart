@@ -27,8 +27,8 @@ class CartService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getCarts() async {
-    try {
+   Future <List<Map<String, dynamic>>> getCarts() async {
+    try{
       final _authUser = await _authService.getCurrentUser();
       if (_authUser == null) {
         throw Exception('Usuário não autenticado');
@@ -38,11 +38,10 @@ class CartService {
       DatabaseEvent event =
           await databaseReference.child('cart').child(_authUser.uid).once();
       DataSnapshot snapshot = event.snapshot;
-      List<Map<String, dynamic>> cart = [];
+      List<Map<String, dynamic>> cart = []; 
 
-      if (snapshot.value != null) {
-        Map<String, dynamic> cartData =
-            Map<String, dynamic>.from(snapshot.value as Map<Object?, Object?>);
+      if(snapshot.value != null){
+        Map<String,dynamic> cartData = Map<String, dynamic>.from(snapshot.value as Map<Object?, Object?>);
         cartData.forEach((key, value) {
           cart.add({
             'id': key,
@@ -54,17 +53,19 @@ class CartService {
             'productId': value['productId'],
             'images': value['images'],
             'userId': value['userId'],
+            
           });
         });
       }
 
       return cart;
-    } catch (e) {
-      throw Exception('Error: ${e}');
+
     }
+    catch(e){throw Exception('Error: ${e}');}
   }
 
-  Future<void> store(Map<String, dynamic>? product) async {
+
+ Future<void> store(Map<String, dynamic>? product) async {
     try {
       User? _authUser = await _authService.getCurrentUser();
       final DatabaseReference databaseReference = await getDatabase();
@@ -72,7 +73,7 @@ class CartService {
       await databaseReference
           .child('cart')
           .child(_authUser!.uid)
-          // .child(product!['id'].toString())
+         // .child(product!['id'].toString())
           .push()
           .set({
         'productId': product!['id'],
@@ -88,11 +89,12 @@ class CartService {
         'images': product['images'],
       });
 
-      await countProductCart();
+      countProductCart();
     } catch (e) {
       throw Exception('É necessario estar logado para realizar essa ação $e');
     }
   }
+
 
   Future<int> countProductCart() async {
     try {
@@ -102,15 +104,19 @@ class CartService {
       }
 
       final databaseReference = await getDatabase();
-      final DatabaseEvent event =  await databaseReference.child('cart').child(_authUser.uid).once();
-      final DataSnapshot snapshot = event.snapshot;
+      final DataSnapshot dataSnapshot =
+          (await databaseReference.child('cart').child(_authUser.uid).once())
+              .snapshot;
 
+      final dynamic cartData = dataSnapshot.value;
       int productCount = 0;
 
-      if(snapshot.value != null){
-        Map<String, dynamic> cartData = Map<String,dynamic>.from(snapshot.value as Map<Object? ,Object?>);
-        
-        productCount = cartData.keys.length;
+      if (cartData != null && cartData is List) {
+        for (var item in cartData) {
+          if (item is Map && item.containsKey('productId')) {
+            productCount++;
+          }
+        }
       }
 
       print('Usuario possui $productCount itens em seu carrinho');
@@ -121,7 +127,7 @@ class CartService {
     }
   }
 
-  Future<void> deleteProduct(String id) async {
+  Future<void> deleteProduct(String productId) async {
     final _authUser = await _authService.getCurrentUser();
     if (_authUser == null) {
       throw Exception('usuario não autenticado');
@@ -131,10 +137,10 @@ class CartService {
     await databaseReference
         .child('cart')
         .child(_authUser.uid)
-        .child(id)
+        .child(productId)
         .remove()
         .then((_) {
-     
+      print('Produto removido do carrinho');
     }).catchError((error) {
       return Future.error(error);
     });
