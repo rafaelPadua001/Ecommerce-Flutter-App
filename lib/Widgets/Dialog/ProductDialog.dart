@@ -2,8 +2,10 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_clone_app/main.dart';
 import 'package:ecommerce_clone_app/Services/cart_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../Services/cart_service.dart';
+import '../../Model/CartModel.dart';
 
 class ProductDialog extends StatefulWidget {
   final CartService _cartService = CartService();
@@ -22,7 +24,8 @@ class _ProductDialogState extends State<ProductDialog> {
   List<String> selectedColors = [];
   List<String> selectedSizes = [];
   Map<String, dynamic>? product;
-
+   var zipCodeController = TextEditingController();
+   // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
   @override
   void initState() {
     super.initState();
@@ -50,10 +53,6 @@ class _ProductDialogState extends State<ProductDialog> {
     if (selectedColors.length >= 1 || selectedSizes.length >= 1) {
       product!['sizes'] = selectedSizes;
       product['colors'] = selectedColors;
-      // print(
-      //     'cores e tamanhos selecionados ${selectedColors} / ${selectedSizes}');
-      //  print(product['colors']);
-      //  print(product['size']);
       widget._cartService.store(product);
       setState(() {
           ScaffoldMessenger
@@ -70,66 +69,76 @@ class _ProductDialogState extends State<ProductDialog> {
     }
   }
 
-  Widget _buildDeliveryButton(){
+  Widget _buildDeliveryButton() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CupertinoButton(
           child: Text('Delivery calculate'),
-          onPressed: (){
+          onPressed: () {
             _buildDeliveryDialog(context);
-            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Click no frete !')));
-          })
+          },
+        )
       ],
     );
   }
 
-  void _buildDeliveryDialog(BuildContext context){
+  void _buildDeliveryDialog(BuildContext context) {
     showDialog(
-    context: context,
-    builder: (BuildContext context){
-      return AlertDialog(
-        title: Text('Delivery calculate'),
-        content: _buildDeliveryDialogContent(),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('Close'),
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Delivery calculate',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                SizedBox(height: 20),
+                _buildTextFieldZipCode(),
+                ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Buscando opcoes de frete'),
+                      ),
+                    );
+                  },
+                  child: Text('Search deliverys'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Close'),
+                ),
+              ],
+            ),
           ),
-        ],
-      );
-    }
-  );
+        );
+      },
+    );
   }
 
-  Widget _buildDeliveryDialogContent(){
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: <Widget>[
-      Text('This is a fullscreen dialog'),
-      SizedBox(height: 8,),
-      _buildTextFieldZipCode(),
-    ],
-  );
-}
+  Widget _buildTextFieldZipCode() {
+    return TextField(
+      // controller: zipCodeController,
+      // inputFormatters: [zipCodeFormatter],
+      decoration: InputDecoration(
+        labelText: 'Enter your zip code',
+        hintText: '123456-78',
+        border: OutlineInputBorder(),
+      ),
+      keyboardType: TextInputType.number,
+    );
+  }
 
-Widget _buildTextFieldZipCode(){
-  return TextField(
-    decoration: InputDecoration(
-      labelText: 'Zip-Code',
-      hintText: 'Insert zip code',
-      border: OutlineInputBorder(),
-    ),
-    keyboardType: TextInputType.number,
-    maxLength: 8,
-    onChanged: (value) {
-      print(value);
-    },
-  );
-}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,6 +193,8 @@ Widget _buildTextFieldZipCode(){
             TextButton(
               onPressed: () {
                 _sendDataToService(product);
+                  Provider.of<CartModel>(context, listen: false).addItem();
+            Navigator.of(context).pop();
               },
               child: Text('Add to Cart', style: TextStyle(color: Colors.white)),
             ),
