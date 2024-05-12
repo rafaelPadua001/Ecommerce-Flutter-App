@@ -11,7 +11,6 @@ class ProductDialog extends StatefulWidget {
   final CartService _cartService = CartService();
   final String productId;
   final imageUrl = 'http://192.168.122.1:8000/storage/products/';
- 
 
   ProductDialog({Key? key, required this.productId}) : super(key: key);
 
@@ -24,13 +23,13 @@ class _ProductDialogState extends State<ProductDialog> {
   List<String> selectedColors = [];
   List<String> selectedSizes = [];
   Map<String, dynamic>? product;
-   var zipCodeController = TextEditingController();
-   // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
+  var zipCodeController = TextEditingController();
+  // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
   @override
   void initState() {
     super.initState();
     chipColor = Colors.white; // Cor padrão dos chips
-    product = null; 
+    product = null;
   }
 
   void handleColorSelection(String color) {
@@ -55,15 +54,11 @@ class _ProductDialogState extends State<ProductDialog> {
       product['colors'] = selectedColors;
       widget._cartService.store(product);
       setState(() {
-          ScaffoldMessenger
-          .of(context)
-          .showSnackBar(
-            SnackBar(
-              content: Text('Um novo item foi adicionado ao carrinho'),
-              backgroundColor: Colors.green,
-              ));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Um novo item foi adicionado ao carrinho'),
+          backgroundColor: Colors.green,
+        ));
       });
-          
     } else {
       print('nada selecionado');
     }
@@ -146,8 +141,8 @@ class _ProductDialogState extends State<ProductDialog> {
         title: Text('Produto Selecionado'),
       ),
       body: FutureBuilder(
-        future: widget._cartService
-            .fetchProductDialog(productId: widget.productId),
+        future:
+            widget._cartService.fetchProductDialog(productId: widget.productId),
         builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -159,10 +154,14 @@ class _ProductDialogState extends State<ProductDialog> {
             );
           } else {
             final List<Map<String, dynamic>> productData = snapshot.data!;
-           if (productData.isNotEmpty) { // Verifique se há dados na lista
-              product = productData.first; // Atribua o primeiro item à variável product
-              final List<String> cleanColors = _parseStringList(product!['colors']);
-              final List<String> cleanSizes = _parseStringList(product!['size']);
+            if (productData.isNotEmpty) {
+              // Verifique se há dados na lista
+              product = productData
+                  .first; // Atribua o primeiro item à variável product
+              final List<String> cleanColors =
+                  _parseStringList(product!['colors']);
+              final List<String> cleanSizes =
+                  _parseStringList(product!['size']);
 
               return SingleChildScrollView(
                 child: Column(
@@ -192,12 +191,11 @@ class _ProductDialogState extends State<ProductDialog> {
           children: [
             TextButton(
               onPressed: () {
-                
-                  Provider.of<CartModel>(context, listen: false).addItem(product);
-                  setState((){
-_sendDataToService(product);
-                  });
-            Navigator.of(context).pop();
+                Provider.of<CartModel>(context, listen: false).addItem(product);
+                setState(() {
+                  _sendDataToService(product);
+                });
+                Navigator.of(context).pop();
               },
               child: Text('Add to Cart', style: TextStyle(color: Colors.white)),
             ),
@@ -354,7 +352,7 @@ _sendDataToService(product);
     Color pressedColor = Colors.red;
     Color boxDecoration = chipColor;
     String selectedSize = '';
-    if(size == 'null'){
+    if (size == 'null') {
       size = 'unique';
     }
     return InkWell(
