@@ -192,8 +192,11 @@ class _ProductDialogState extends State<ProductDialog> {
           children: [
             TextButton(
               onPressed: () {
-                _sendDataToService(product);
-                  Provider.of<CartModel>(context, listen: false).addItem();
+                
+                  Provider.of<CartModel>(context, listen: false).addItem(product);
+                  setState((){
+_sendDataToService(product);
+                  });
             Navigator.of(context).pop();
               },
               child: Text('Add to Cart', style: TextStyle(color: Colors.white)),
