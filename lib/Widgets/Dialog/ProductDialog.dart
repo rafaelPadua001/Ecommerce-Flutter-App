@@ -25,7 +25,7 @@ class _ProductDialogState extends State<ProductDialog> {
   List<String> selectedSizes = [];
   Map<String, dynamic>? product;
   final _zipCodeController = TextEditingController();
-  // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
+   // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
   @override
   void initState() {
     super.initState();

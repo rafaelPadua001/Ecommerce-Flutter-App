@@ -5,9 +5,8 @@ class CartModel extends ChangeNotifier {
   List<String> get items => _items;
 
   void addItem(Map<String, dynamic>? product) {
-    print('Novo Produto: ${product}');
     if (product != null && product.containsKey('id')) {
-      print(product['id']);
+   
       _items.add(product['id'].toString());
 
       notifyListeners();
