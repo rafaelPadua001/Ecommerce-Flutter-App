@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_clone_app/main.dart';
 import 'package:ecommerce_clone_app/Services/cart_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../Services/cart_service.dart';
@@ -23,8 +24,8 @@ class _ProductDialogState extends State<ProductDialog> {
   List<String> selectedColors = [];
   List<String> selectedSizes = [];
   Map<String, dynamic>? product;
-  var zipCodeController = TextEditingController();
-  // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
+  final _zipCodeController = TextEditingController();
+   // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
   @override
   void initState() {
     super.initState();
@@ -98,12 +99,17 @@ class _ProductDialogState extends State<ProductDialog> {
                 SizedBox(height: 20),
                 _buildTextFieldZipCode(),
                 ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Buscando opcoes de frete'),
-                      ),
-                    );
+                  onPressed: () async {
+                    setState(() {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Buscando opcoes de frete para ${_zipCodeController.text}'),
+                          backgroundColor: Colors.blueAccent,
+                        ),
+                      );
+                      Navigator.pop(context);
+                    });
                   },
                   child: Text('Search deliverys'),
                 ),
@@ -123,13 +129,18 @@ class _ProductDialogState extends State<ProductDialog> {
 
   Widget _buildTextFieldZipCode() {
     return TextField(
-      // controller: zipCodeController,
+      controller: _zipCodeController,
       // inputFormatters: [zipCodeFormatter],
       decoration: InputDecoration(
         labelText: 'Enter your zip code',
         hintText: '123456-78',
         border: OutlineInputBorder(),
       ),
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(9),
+        FilteringTextInputFormatter.digitsOnly,
+        _ZipCodeFormatter(),
+      ],
       keyboardType: TextInputType.number,
     );
   }
@@ -400,5 +411,23 @@ class _ProductDialogState extends State<ProductDialog> {
   List<String> _parseStringList(String? data) {
     if (data == null || data.isEmpty) return [];
     return data.replaceAll(RegExp(r'[^\w\s]+'), '').split(' ');
+  }
+}
+
+class _ZipCodeFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final text = newValue.text;
+
+    // Adiciona o hífen após os primeiros 5 dígitos
+    if (text.length >= 6) {
+      return TextEditingValue(
+        text: '${text.substring(0, 5)}-${text.substring(5)}',
+        selection: TextSelection.collapsed(offset: text.length + 1),
+      );
+    }
+
+    return newValue;
   }
 }
