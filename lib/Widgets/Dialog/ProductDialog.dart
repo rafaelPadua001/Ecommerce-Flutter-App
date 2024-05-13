@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce_clone_app/main.dart';
 import 'package:ecommerce_clone_app/Services/cart_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../Services/cart_service.dart';
@@ -11,7 +12,6 @@ class ProductDialog extends StatefulWidget {
   final CartService _cartService = CartService();
   final String productId;
   final imageUrl = 'http://192.168.122.1:8000/storage/products/';
- 
 
   ProductDialog({Key? key, required this.productId}) : super(key: key);
 
@@ -24,13 +24,13 @@ class _ProductDialogState extends State<ProductDialog> {
   List<String> selectedColors = [];
   List<String> selectedSizes = [];
   Map<String, dynamic>? product;
-   var zipCodeController = TextEditingController();
-   // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
+  final _zipCodeController = TextEditingController();
+  // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
   @override
   void initState() {
     super.initState();
     chipColor = Colors.white; // Cor padrão dos chips
-    product = null; 
+    product = null;
   }
 
   void handleColorSelection(String color) {
@@ -55,15 +55,11 @@ class _ProductDialogState extends State<ProductDialog> {
       product['colors'] = selectedColors;
       widget._cartService.store(product);
       setState(() {
-          ScaffoldMessenger
-          .of(context)
-          .showSnackBar(
-            SnackBar(
-              content: Text('Um novo item foi adicionado ao carrinho'),
-              backgroundColor: Colors.green,
-              ));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Um novo item foi adicionado ao carrinho'),
+          backgroundColor: Colors.green,
+        ));
       });
-          
     } else {
       print('nada selecionado');
     }
@@ -103,12 +99,17 @@ class _ProductDialogState extends State<ProductDialog> {
                 SizedBox(height: 20),
                 _buildTextFieldZipCode(),
                 ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Buscando opcoes de frete'),
-                      ),
-                    );
+                  onPressed: () async {
+                    setState(() {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Buscando opcoes de frete para ${_zipCodeController.text}'),
+                          backgroundColor: Colors.blueAccent,
+                        ),
+                      );
+                      Navigator.pop(context);
+                    });
                   },
                   child: Text('Search deliverys'),
                 ),
@@ -128,13 +129,18 @@ class _ProductDialogState extends State<ProductDialog> {
 
   Widget _buildTextFieldZipCode() {
     return TextField(
-      // controller: zipCodeController,
+      controller: _zipCodeController,
       // inputFormatters: [zipCodeFormatter],
       decoration: InputDecoration(
         labelText: 'Enter your zip code',
         hintText: '123456-78',
         border: OutlineInputBorder(),
       ),
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(9),
+        FilteringTextInputFormatter.digitsOnly,
+        _ZipCodeFormatter(),
+      ],
       keyboardType: TextInputType.number,
     );
   }
@@ -146,8 +152,8 @@ class _ProductDialogState extends State<ProductDialog> {
         title: Text('Produto Selecionado'),
       ),
       body: FutureBuilder(
-        future: widget._cartService
-            .fetchProductDialog(productId: widget.productId),
+        future:
+            widget._cartService.fetchProductDialog(productId: widget.productId),
         builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -159,10 +165,14 @@ class _ProductDialogState extends State<ProductDialog> {
             );
           } else {
             final List<Map<String, dynamic>> productData = snapshot.data!;
-           if (productData.isNotEmpty) { // Verifique se há dados na lista
-              product = productData.first; // Atribua o primeiro item à variável product
-              final List<String> cleanColors = _parseStringList(product!['colors']);
-              final List<String> cleanSizes = _parseStringList(product!['size']);
+            if (productData.isNotEmpty) {
+              // Verifique se há dados na lista
+              product = productData
+                  .first; // Atribua o primeiro item à variável product
+              final List<String> cleanColors =
+                  _parseStringList(product!['colors']);
+              final List<String> cleanSizes =
+                  _parseStringList(product!['size']);
 
               return SingleChildScrollView(
                 child: Column(
@@ -192,12 +202,11 @@ class _ProductDialogState extends State<ProductDialog> {
           children: [
             TextButton(
               onPressed: () {
-                
-                  Provider.of<CartModel>(context, listen: false).addItem(product);
-                  setState((){
-_sendDataToService(product);
-                  });
-            Navigator.of(context).pop();
+                Provider.of<CartModel>(context, listen: false).addItem(product);
+                setState(() {
+                  _sendDataToService(product);
+                });
+                Navigator.of(context).pop();
               },
               child: Text('Add to Cart', style: TextStyle(color: Colors.white)),
             ),
@@ -354,7 +363,7 @@ _sendDataToService(product);
     Color pressedColor = Colors.red;
     Color boxDecoration = chipColor;
     String selectedSize = '';
-    if(size == 'null'){
+    if (size == 'null') {
       size = 'unique';
     }
     return InkWell(
@@ -402,5 +411,23 @@ _sendDataToService(product);
   List<String> _parseStringList(String? data) {
     if (data == null || data.isEmpty) return [];
     return data.replaceAll(RegExp(r'[^\w\s]+'), '').split(' ');
+  }
+}
+
+class _ZipCodeFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final text = newValue.text;
+
+    // Adiciona o hífen após os primeiros 5 dígitos
+    if (text.length >= 6) {
+      return TextEditingValue(
+        text: '${text.substring(0, 5)}-${text.substring(5)}',
+        selection: TextSelection.collapsed(offset: text.length + 1),
+      );
+    }
+
+    return newValue;
   }
 }
