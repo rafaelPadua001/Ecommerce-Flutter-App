@@ -29,6 +29,8 @@ class _ProductDialogState extends State<ProductDialog> {
   final _zipCodeController = TextEditingController();
   final DeliveryService _deliveryService = DeliveryService();
   Map<String, dynamic>? _selectedDelivery;
+
+
   @override
   void initState() {
     super.initState();
@@ -72,7 +74,7 @@ class _ProductDialogState extends State<ProductDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        
+        _buildDeliveries(),
         CupertinoButton(
           child: Text('Delivery calculate'),
           onPressed: () {
@@ -170,7 +172,7 @@ Widget _buildDeliveries(){
         );
       }
       else if(snapshot.data != null){
-        return Expanded(
+       return Expanded(
             child: ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
@@ -232,7 +234,6 @@ Widget _buildDeliveries(){
                     _buildProductDetails(product!),
                     if (cleanColors.isNotEmpty) _buildColorSection(cleanColors),
                     if (cleanSizes.isNotEmpty) _buildSizeSection(cleanSizes),
-                    _buildDeliveries(),
                     _buildDeliveryButton(),
                     _buildDescriptionSection(product!),
                   ],
