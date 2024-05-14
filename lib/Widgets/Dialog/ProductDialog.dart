@@ -7,9 +7,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../Services/cart_service.dart';
 import '../../Model/CartModel.dart';
+import '../../Services/delivery_service.dart';
 
 class ProductDialog extends StatefulWidget {
   final CartService _cartService = CartService();
+  
   final String productId;
   final imageUrl = 'http://192.168.122.1:8000/storage/products/';
 
@@ -25,11 +27,12 @@ class _ProductDialogState extends State<ProductDialog> {
   List<String> selectedSizes = [];
   Map<String, dynamic>? product;
   final _zipCodeController = TextEditingController();
-   // var zipCodeFormatter = MaskTextInputFormatter(mask: '00000-000');
+  final DeliveryService _deliveryService = DeliveryService();
+  Map<String, dynamic>? _selectedDelivery;
   @override
   void initState() {
     super.initState();
-    chipColor = Colors.white; // Cor padrão dos chips
+    chipColor = Colors.white; 
     product = null;
   }
 
@@ -69,6 +72,7 @@ class _ProductDialogState extends State<ProductDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        
         CupertinoButton(
           child: Text('Delivery calculate'),
           onPressed: () {
@@ -81,13 +85,16 @@ class _ProductDialogState extends State<ProductDialog> {
 
   void _buildDeliveryDialog(BuildContext context) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        child: Container(
+          constraints: BoxConstraints(maxHeight: 400), // Defina a altura máxima desejada
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   'Delivery calculate',
@@ -96,7 +103,9 @@ class _ProductDialogState extends State<ProductDialog> {
                     fontSize: 20,
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 10),
+                _buildDeliveries(),
+                SizedBox(height: 10),
                 _buildTextFieldZipCode(),
                 ElevatedButton(
                   onPressed: () async {
@@ -111,7 +120,7 @@ class _ProductDialogState extends State<ProductDialog> {
                       Navigator.pop(context);
                     });
                   },
-                  child: Text('Search deliverys'),
+                  child: Text('Search deliveries'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -122,9 +131,10 @@ class _ProductDialogState extends State<ProductDialog> {
               ],
             ),
           ),
-        );
-      },
-    );
+        ),
+      );
+    },
+  );
   }
 
   Widget _buildTextFieldZipCode() {
@@ -145,6 +155,46 @@ class _ProductDialogState extends State<ProductDialog> {
     );
   }
 
+Widget _buildDeliveries(){
+  return FutureBuilder<List<Map<String, dynamic>>>(
+    future: _deliveryService.fetchQuotations(),
+    builder: (context , snapshot) {
+      if(snapshot.connectionState == ConnectionState.waiting){
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+      else if(snapshot.hasError){
+        return Center(
+          child: Text('Error: ${snapshot.error}'),
+        );
+      }
+      else if(snapshot.data != null){
+        return Expanded(
+            child: ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final delivery = snapshot.data![index];
+                return RadioListTile(
+                  title: Text(delivery['name']),
+                  value: delivery,
+                  groupValue: _selectedDelivery,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedDelivery = value as Map<String, dynamic>;
+                      print(_selectedDelivery);
+                    });
+                  },
+                );
+              },
+            ),
+          );
+      }
+      else{
+        return Text('Nenhum metodo de entrega cadastrado');
+      }
+    });
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,6 +232,7 @@ class _ProductDialogState extends State<ProductDialog> {
                     _buildProductDetails(product!),
                     if (cleanColors.isNotEmpty) _buildColorSection(cleanColors),
                     if (cleanSizes.isNotEmpty) _buildSizeSection(cleanSizes),
+                    _buildDeliveries(),
                     _buildDeliveryButton(),
                     _buildDescriptionSection(product!),
                   ],
