@@ -29,7 +29,7 @@ class _ProductDialogState extends State<ProductDialog> {
   final _zipCodeController = TextEditingController();
   final DeliveryService _deliveryService = DeliveryService();
   Map<String, dynamic>? _selectedDelivery;
-
+  List<String> quotations = [];
   @override
   void initState() {
     super.initState();
@@ -111,19 +111,29 @@ class _ProductDialogState extends State<ProductDialog> {
                   _buildTextFieldZipCode(),
                   ElevatedButton(
                     onPressed: () async {
+                      
                       final data = {
                         'postal_code': _zipCodeController.text,
                         'shippment': _selectedDelivery?['name'],
-                        'height': '1.00',
-                        'width': '1.00',
-                        'length': '1.00',
-                        'weight': '1.00',
-                        'price': '120.00',
-                        'quantity': '1',
+                        'height': double.parse(product!['height']),
+                        'width': double.parse(product!['width']),
+                        'length': double.parse(product!['length']),
+                        'weight': double.parse(product!['weight']),
+                        'price': double.parse(product!['price']),
+                        'quantity': 1,
                       };
-                     final resultado = await _deliveryService.calculate(data);
-                     print(resultado);
+
+                   
+                      final response = await _deliveryService.calculate(data);
+                      print(response);
+                     response.forEach((Map<String, dynamic> quotation) {
+                      
+                      if (quotation.containsKey('id')) {
+                        quotations.add(quotation.toString());
+                      }
+                    });
                       setState(() {
+                        
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -208,6 +218,22 @@ class _ProductDialogState extends State<ProductDialog> {
         });
   }
 
+  Widget _buildQuotations(){
+    try{
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('quotations: $quotations'),
+            SizedBox(height: 8),
+          ],
+          
+        );
+    }
+    catch(e){
+      throw Exception('Error $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -246,6 +272,7 @@ class _ProductDialogState extends State<ProductDialog> {
                     if (cleanColors.isNotEmpty) _buildColorSection(cleanColors),
                     if (cleanSizes.isNotEmpty) _buildSizeSection(cleanSizes),
                     _buildDeliveryButton(),
+                    if(quotations.length >= 1) _buildQuotations(),
                     _buildDescriptionSection(product!),
                   ],
                 ),
