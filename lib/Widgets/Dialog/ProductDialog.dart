@@ -8,12 +8,12 @@ import 'package:flutter/material.dart';
 import '../../Services/cart_service.dart';
 import '../../Model/CartModel.dart';
 import '../../Services/delivery_service.dart';
+import '../../Services/api_service.dart';
 
 class ProductDialog extends StatefulWidget {
   final CartService _cartService = CartService();
-  
   final String productId;
-  final imageUrl = 'http://192.168.122.1:8000/storage/products/';
+  final imageUrl = '${ApiConfig.getApiBaseUrl()}/storage/products/';
 
   ProductDialog({Key? key, required this.productId}) : super(key: key);
 
@@ -30,11 +30,10 @@ class _ProductDialogState extends State<ProductDialog> {
   final DeliveryService _deliveryService = DeliveryService();
   Map<String, dynamic>? _selectedDelivery;
 
-
   @override
   void initState() {
     super.initState();
-    chipColor = Colors.white; 
+    chipColor = Colors.white;
     product = null;
   }
 
@@ -87,62 +86,74 @@ class _ProductDialogState extends State<ProductDialog> {
 
   void _buildDeliveryDialog(BuildContext context) {
     showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        child: Container(
-          constraints: BoxConstraints(maxHeight: 400), // Defina a altura máxima desejada
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Delivery calculate',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            constraints: BoxConstraints(
+                maxHeight: 400), // Defina a altura máxima desejada
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Delivery calculate',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
-                ),
-                SizedBox(height: 10),
-                _buildDeliveries(),
-                SizedBox(height: 10),
-                _buildTextFieldZipCode(),
-                ElevatedButton(
-                  onPressed: () async {
-                    setState(() {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'Buscando opcoes de frete para ${_zipCodeController.text}'),
-                          backgroundColor: Colors.blueAccent,
-                        ),
-                      );
+                  SizedBox(height: 10),
+                  _buildDeliveries(),
+                  SizedBox(height: 10),
+                  _buildTextFieldZipCode(),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final data = {
+                        'postal_code': _zipCodeController.text,
+                        'shippment': _selectedDelivery?['name'],
+                        'height': '1.00',
+                        'width': '1.00',
+                        'length': '1.00',
+                        'weight': '1.00',
+                        'price': '120.00',
+                        'quantity': '1',
+                      };
+                     final resultado = await _deliveryService.calculate(data);
+                     print(resultado);
+                      setState(() {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                'Buscando opcoes de frete para ${_zipCodeController.text}'),
+                            backgroundColor: Colors.blueAccent,
+                          ),
+                        );
+                        Navigator.pop(context);
+                      });
+                    },
+                    child: Text('Search deliveries'),
+                  ),
+                  TextButton(
+                    onPressed: () {
                       Navigator.pop(context);
-                    });
-                  },
-                  child: Text('Search deliveries'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text('Close'),
-                ),
-              ],
+                    },
+                    child: Text('Close'),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
   }
 
   Widget _buildTextFieldZipCode() {
     return TextField(
       controller: _zipCodeController,
-      // inputFormatters: [zipCodeFormatter],
       decoration: InputDecoration(
         labelText: 'Enter your zip code',
         hintText: '123456-78',
@@ -157,46 +168,46 @@ class _ProductDialogState extends State<ProductDialog> {
     );
   }
 
-Widget _buildDeliveries(){
-  return FutureBuilder<List<Map<String, dynamic>>>(
-    future: _deliveryService.fetchQuotations(),
-    builder: (context , snapshot) {
-      if(snapshot.connectionState == ConnectionState.waiting){
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-      else if(snapshot.hasError){
-        return Center(
-          child: Text('Error: ${snapshot.error}'),
-        );
-      }
-      else if(snapshot.data != null){
-       return Expanded(
-            child: ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final delivery = snapshot.data![index];
-                return RadioListTile(
-                  title: Text(delivery['name']),
-                  value: delivery,
-                  groupValue: _selectedDelivery,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedDelivery = value as Map<String, dynamic>;
-                      print(_selectedDelivery);
-                    });
-                  },
-                );
-              },
-            ),
-          );
-      }
-      else{
-        return Text('Nenhum metodo de entrega cadastrado');
-      }
-    });
-}
+  Widget _buildDeliveries() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+        future: _deliveryService.fetchDelivery(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else if (snapshot.hasData && snapshot.data != null) {
+            return Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  final delivery = snapshot.data![index];
+                  return RadioListTile<Map<String, dynamic>>(
+                    title: Text(delivery['name']),
+                    value: delivery,
+                    groupValue: _selectedDelivery,
+                    onChanged: (Map<String, dynamic>? value) {
+                      setState(() {
+                        _selectedDelivery = value as Map<String, dynamic>;
+                        print(_selectedDelivery?['name']);
+                      });
+                    },
+                  );
+                },
+              ),
+            );
+          } else {
+            return Text('Nenhum metodo de entrega cadastrado');
+          }
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
