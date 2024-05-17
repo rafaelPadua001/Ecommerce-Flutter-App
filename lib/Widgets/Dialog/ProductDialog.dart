@@ -29,7 +29,9 @@ class _ProductDialogState extends State<ProductDialog> {
   final _zipCodeController = TextEditingController();
   final DeliveryService _deliveryService = DeliveryService();
   Map<String, dynamic>? _selectedDelivery;
-  List<String> quotations = [];
+  List<Map<String, dynamic>> quotations = [];
+  String _selectedCompany = '';
+
   @override
   void initState() {
     super.initState();
@@ -111,7 +113,6 @@ class _ProductDialogState extends State<ProductDialog> {
                   _buildTextFieldZipCode(),
                   ElevatedButton(
                     onPressed: () async {
-                      
                       final data = {
                         'postal_code': _zipCodeController.text,
                         'shippment': _selectedDelivery?['name'],
@@ -123,17 +124,14 @@ class _ProductDialogState extends State<ProductDialog> {
                         'quantity': 1,
                       };
 
-                   
                       final response = await _deliveryService.calculate(data);
                       print(response);
-                     response.forEach((Map<String, dynamic> quotation) {
-                      
-                      if (quotation.containsKey('id')) {
-                        quotations.add(quotation.toString());
-                      }
-                    });
+                      response.forEach((Map<String, dynamic> quotation) {
+                        if (quotation.containsKey('id')) {
+                          quotations.add(quotation);
+                        }
+                      });
                       setState(() {
-                        
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -218,18 +216,54 @@ class _ProductDialogState extends State<ProductDialog> {
         });
   }
 
-  Widget _buildQuotations(){
-    try{
+  Widget _buildQuotations() {
+    try {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('quotations: $quotations'),
-            SizedBox(height: 8),
-          ],
-          
-        );
-    }
-    catch(e){
+        children: quotations.map((quotation) {
+          final subtitle =
+              quotation.containsKey('price') && quotation['price'] != null
+                  ? 'Preço: ${quotation['price'].toString()}'
+                  : 'Serviço econômico indisponível para o trecho.';
+
+          final pictureUrl = quotation.containsKey('company') &&
+                  quotation['company'].containsKey('picture')
+              ? quotation['company']['picture']
+              : null;
+
+          return Column(
+            children: [
+              ListTile(
+                leading: pictureUrl != null
+                    ? Image.network(
+                        pictureUrl,
+                        width: 40,
+                        height: 40,
+                      )
+                    : null,
+              ),
+              RadioListTile<String>(
+                title: Text(quotation['name']),
+                subtitle: Text(subtitle),
+                value: quotation.toString(),
+                groupValue: _selectedCompany,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCompany = value as String;
+               
+                    final double productPrice = double.parse(product!['price']);
+                    final double companyPrice = double.parse(quotation['price']);
+                    product!['price'] = (productPrice + companyPrice).toStringAsFixed(2);
+                    print('Novo Preço: ${product!['price']}');
+                  });
+                  
+                },
+              ),
+            ],
+          );
+        }).toList(),
+      );
+    } catch (e) {
       throw Exception('Error $e');
     }
   }
@@ -272,7 +306,7 @@ class _ProductDialogState extends State<ProductDialog> {
                     if (cleanColors.isNotEmpty) _buildColorSection(cleanColors),
                     if (cleanSizes.isNotEmpty) _buildSizeSection(cleanSizes),
                     _buildDeliveryButton(),
-                    if(quotations.length >= 1) _buildQuotations(),
+                     if (quotations.isNotEmpty) _buildQuotations(),
                     _buildDescriptionSection(product!),
                   ],
                 ),
