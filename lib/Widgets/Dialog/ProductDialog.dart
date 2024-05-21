@@ -30,6 +30,7 @@ class _ProductDialogState extends State<ProductDialog> {
   final DeliveryService _deliveryService = DeliveryService();
   Map<String, dynamic>? _selectedDelivery;
   List<Map<String, dynamic>> quotations = [];
+  double newPrice = 0.00;
   String _selectedCompany = '';
 
   @override
@@ -175,6 +176,8 @@ class _ProductDialogState extends State<ProductDialog> {
       keyboardType: TextInputType.number,
     );
   }
+ 
+
 
   Widget _buildDeliveries() {
     return FutureBuilder<List<Map<String, dynamic>>>(
@@ -215,8 +218,9 @@ class _ProductDialogState extends State<ProductDialog> {
           }
         });
   }
+  
 
-  Widget _buildQuotations() {
+  Widget _buildQuotations(Function(double) onPriceUpdated) {
     try {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,12 +252,18 @@ class _ProductDialogState extends State<ProductDialog> {
                 value: quotation.toString(),
                 groupValue: _selectedCompany,
                 onChanged: (value) {
+                  Provider.of<CartModel>(context, listen: false).addItem(product);
                   setState(() {
+                    
                     _selectedCompany = value as String;
                
                     final double productPrice = double.parse(product!['price']);
                     final double companyPrice = double.parse(quotation['price']);
-                    product!['price'] = (productPrice + companyPrice).toStringAsFixed(2);
+                    newPrice = productPrice + companyPrice;
+                    product!['price'] = newPrice.toStringAsFixed(2);
+
+                    onPriceUpdated(newPrice);
+                    
                     print('Novo Preço: ${product!['price']}');
                   });
                   
@@ -306,7 +316,9 @@ class _ProductDialogState extends State<ProductDialog> {
                     if (cleanColors.isNotEmpty) _buildColorSection(cleanColors),
                     if (cleanSizes.isNotEmpty) _buildSizeSection(cleanSizes),
                     _buildDeliveryButton(),
-                     if (quotations.isNotEmpty) _buildQuotations(),
+                     if (quotations.isNotEmpty) _buildQuotations((newPrice){
+                     
+                     }),
                     _buildDescriptionSection(product!),
                   ],
                 ),
@@ -381,7 +393,7 @@ class _ProductDialogState extends State<ProductDialog> {
           _buildRatingStars(),
           SizedBox(height: 8.0),
           Text(
-            'Preço: R\$ ${product['price']}',
+            newPrice >= 1 ? 'Preço R\$ ${newPrice}' : 'Preço: R\$ ${product['price']}',
             style: TextStyle(fontSize: 16.0),
           ),
           Text(
@@ -507,7 +519,7 @@ class _ProductDialogState extends State<ProductDialog> {
       ),
     );
   }
-
+  
   Widget _buildDescriptionSection(Map<String, dynamic> product) {
     return Padding(
       padding: EdgeInsets.all(16.0),
