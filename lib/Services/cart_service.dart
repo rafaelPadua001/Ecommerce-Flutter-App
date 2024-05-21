@@ -53,6 +53,8 @@ class CartService {
             'productId': value['productId'],
             'images': value['images'],
             'userId': value['userId'],
+            'deliveryName': value['deliveryName'],
+            'deliveryPrice': value['deliveryPrice']
             
           });
         });
@@ -65,7 +67,7 @@ class CartService {
   }
 
 
- Future<void> store(Map<String, dynamic>? product) async {
+ Future<void> store(Map<String, dynamic>? product, quotationName, quotationPrice) async {
     try {
       User? _authUser = await _authService.getCurrentUser();
       final DatabaseReference databaseReference = await getDatabase();
@@ -87,6 +89,8 @@ class CartService {
         'colors': product['colors'],
         'sizes': product['sizes'],
         'images': product['images'],
+        'deliveryName': quotationName,
+        'deliveryPrice': quotationPrice
       });
 
       countProductCart();

@@ -30,8 +30,10 @@ class _ProductDialogState extends State<ProductDialog> {
   final DeliveryService _deliveryService = DeliveryService();
   Map<String, dynamic>? _selectedDelivery;
   List<Map<String, dynamic>> quotations = [];
+  double newPrice = 0.00;
   String _selectedCompany = '';
-
+  String quotationName = '';
+  double quotationPrice = 0.00;
   @override
   void initState() {
     super.initState();
@@ -55,11 +57,11 @@ class _ProductDialogState extends State<ProductDialog> {
     }
   }
 
-  void _sendDataToService(Map<String, dynamic>? product) {
+  void _sendDataToService(Map<String, dynamic>? product, quotationName, quotationPrice) {
     if (selectedColors.length >= 1 || selectedSizes.length >= 1) {
       product!['sizes'] = selectedSizes;
       product['colors'] = selectedColors;
-      widget._cartService.store(product);
+      widget._cartService.store(product, quotationName, quotationPrice);
       setState(() {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Um novo item foi adicionado ao carrinho'),
@@ -175,6 +177,8 @@ class _ProductDialogState extends State<ProductDialog> {
       keyboardType: TextInputType.number,
     );
   }
+ 
+
 
   Widget _buildDeliveries() {
     return FutureBuilder<List<Map<String, dynamic>>>(
@@ -215,8 +219,9 @@ class _ProductDialogState extends State<ProductDialog> {
           }
         });
   }
+  
 
-  Widget _buildQuotations() {
+  Widget _buildQuotations(Function(double) onPriceUpdated) {
     try {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,13 +253,21 @@ class _ProductDialogState extends State<ProductDialog> {
                 value: quotation.toString(),
                 groupValue: _selectedCompany,
                 onChanged: (value) {
+                  Provider.of<CartModel>(context, listen: false).addItem(product);
                   setState(() {
+                    
                     _selectedCompany = value as String;
                
                     final double productPrice = double.parse(product!['price']);
                     final double companyPrice = double.parse(quotation['price']);
-                    product!['price'] = (productPrice + companyPrice).toStringAsFixed(2);
-                    print('Novo Preço: ${product!['price']}');
+                     quotationName = quotation['name'];
+                    quotationPrice = companyPrice;
+                    newPrice = productPrice + companyPrice;
+                   
+                    product!['price'] = newPrice.toStringAsFixed(2);
+                    
+                    onPriceUpdated(newPrice);
+                   
                   });
                   
                 },
@@ -306,7 +319,9 @@ class _ProductDialogState extends State<ProductDialog> {
                     if (cleanColors.isNotEmpty) _buildColorSection(cleanColors),
                     if (cleanSizes.isNotEmpty) _buildSizeSection(cleanSizes),
                     _buildDeliveryButton(),
-                     if (quotations.isNotEmpty) _buildQuotations(),
+                     if (quotations.isNotEmpty) _buildQuotations((newPrice){
+                     
+                     }),
                     _buildDescriptionSection(product!),
                   ],
                 ),
@@ -326,9 +341,8 @@ class _ProductDialogState extends State<ProductDialog> {
           children: [
             TextButton(
               onPressed: () {
-                Provider.of<CartModel>(context, listen: false).addItem(product);
                 setState(() {
-                  _sendDataToService(product);
+                  _sendDataToService(product, quotationName, quotationPrice);
                 });
                 Navigator.of(context).pop();
               },
@@ -336,8 +350,7 @@ class _ProductDialogState extends State<ProductDialog> {
             ),
             TextButton(
               onPressed: () {
-                print('Comprar produto...');
-                _sendDataToService(product);
+                _sendDataToService(product, quotationName, quotationPrice);
               },
               child: Text('Buy Product', style: TextStyle(color: Colors.white)),
             ),
@@ -381,7 +394,7 @@ class _ProductDialogState extends State<ProductDialog> {
           _buildRatingStars(),
           SizedBox(height: 8.0),
           Text(
-            'Preço: R\$ ${product['price']}',
+            newPrice >= 1 ? 'Preço R\$ ${newPrice}' : 'Preço: R\$ ${product['price']}',
             style: TextStyle(fontSize: 16.0),
           ),
           Text(
@@ -452,10 +465,6 @@ class _ProductDialogState extends State<ProductDialog> {
           selectedColor = isSelected ? color : '';
           print('Tamanho selecionado ${color}');
           handleColorSelection(color);
-          // setState(() {
-          //  // selectedSize = isSelected ? size : ''; // Atualiza o tamanho selecionado com base na seleção do chip
-          //   print('Tamanho selecionado ${size}');
-          // });
           boxDecoration = pressedColor;
         },
       ),
@@ -507,7 +516,7 @@ class _ProductDialogState extends State<ProductDialog> {
       ),
     );
   }
-
+  
   Widget _buildDescriptionSection(Map<String, dynamic> product) {
     return Padding(
       padding: EdgeInsets.all(16.0),
