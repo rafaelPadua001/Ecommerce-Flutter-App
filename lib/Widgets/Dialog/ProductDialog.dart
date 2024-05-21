@@ -32,7 +32,8 @@ class _ProductDialogState extends State<ProductDialog> {
   List<Map<String, dynamic>> quotations = [];
   double newPrice = 0.00;
   String _selectedCompany = '';
-
+  String quotationName = '';
+  double quotationPrice = 0.00;
   @override
   void initState() {
     super.initState();
@@ -56,11 +57,11 @@ class _ProductDialogState extends State<ProductDialog> {
     }
   }
 
-  void _sendDataToService(Map<String, dynamic>? product) {
+  void _sendDataToService(Map<String, dynamic>? product, quotationName, quotationPrice) {
     if (selectedColors.length >= 1 || selectedSizes.length >= 1) {
       product!['sizes'] = selectedSizes;
       product['colors'] = selectedColors;
-      widget._cartService.store(product);
+      widget._cartService.store(product, quotationName, quotationPrice);
       setState(() {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Um novo item foi adicionado ao carrinho'),
@@ -259,12 +260,14 @@ class _ProductDialogState extends State<ProductDialog> {
                
                     final double productPrice = double.parse(product!['price']);
                     final double companyPrice = double.parse(quotation['price']);
+                     quotationName = quotation['name'];
+                    quotationPrice = companyPrice;
                     newPrice = productPrice + companyPrice;
+                   
                     product!['price'] = newPrice.toStringAsFixed(2);
-
-                    onPriceUpdated(newPrice);
                     
-                    print('Novo Preço: ${product!['price']}');
+                    onPriceUpdated(newPrice);
+                   
                   });
                   
                 },
@@ -338,9 +341,8 @@ class _ProductDialogState extends State<ProductDialog> {
           children: [
             TextButton(
               onPressed: () {
-                Provider.of<CartModel>(context, listen: false).addItem(product);
                 setState(() {
-                  _sendDataToService(product);
+                  _sendDataToService(product, quotationName, quotationPrice);
                 });
                 Navigator.of(context).pop();
               },
@@ -348,8 +350,7 @@ class _ProductDialogState extends State<ProductDialog> {
             ),
             TextButton(
               onPressed: () {
-                print('Comprar produto...');
-                _sendDataToService(product);
+                _sendDataToService(product, quotationName, quotationPrice);
               },
               child: Text('Buy Product', style: TextStyle(color: Colors.white)),
             ),
@@ -464,10 +465,6 @@ class _ProductDialogState extends State<ProductDialog> {
           selectedColor = isSelected ? color : '';
           print('Tamanho selecionado ${color}');
           handleColorSelection(color);
-          // setState(() {
-          //  // selectedSize = isSelected ? size : ''; // Atualiza o tamanho selecionado com base na seleção do chip
-          //   print('Tamanho selecionado ${size}');
-          // });
           boxDecoration = pressedColor;
         },
       ),

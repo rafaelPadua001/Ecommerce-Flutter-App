@@ -30,8 +30,9 @@ class _CartState extends State<Cart> {
       double total = 0;
       for (final product in cartProducts) {
         final dynamic price = product['price'];
+        final dynamic totalValue = product['deliveryPrice'];
         if (price != null) {
-          total += double.parse(price.toString());
+          total += double.parse(price.toString()) + double.parse(totalValue.toString());
         }
       }
 
@@ -137,13 +138,32 @@ class _CartState extends State<Cart> {
     if (priceList.isNotEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: priceList.map((price) => Text(price + '+(frete)')).toList(),
+        children: priceList.map((price) => Text('R\$' + price)).toList(),
       );
     } else {
       return SizedBox();
     }
   }
 
+  Widget _buildDeliveryName(dynamic deliveryName, deliveryPrice){
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('delivery: $deliveryName'),
+        SizedBox(height: 2),
+        Text('delivery price: ${deliveryPrice}'),
+      ],
+    );
+  }
+  Widget _buildTotalOrder(dynamic deliveryPrice, productPrice){
+    final total = double.parse(deliveryPrice.toString()) + double.parse(productPrice.toString());
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Text('Total: ${total}'),
+      ],
+    );
+  }
   Widget _buildColorCircles(dynamic colors) {
     List<String> colorList = [];
 
@@ -199,6 +219,9 @@ class _CartState extends State<Cart> {
     final dynamic productName = cartProduct['name'];
     final dynamic productPrice = cartProduct['price'];
     final dynamic productImgs = cartProduct['images'];
+    final dynamic deliveryName = cartProduct['deliveryName'];
+    final dynamic deliveryPrice = cartProduct['deliveryPrice'];
+   
     if (cartProduct['id'].toString().length >= 1) {
       return Column(
         children: [
@@ -214,6 +237,8 @@ class _CartState extends State<Cart> {
                   SizedBox(height: 8),
                   _buildProductName(productName),
                   _buildProductPrice(productPrice),
+                  _buildDeliveryName(deliveryName, deliveryPrice),
+                  _buildTotalOrder(deliveryPrice, productPrice),
                   _buildColorCircles(colors),
                   SizedBox(height: 8),
                   Text('Sizes:'),
