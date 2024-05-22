@@ -16,18 +16,51 @@ class _CartState extends State<Cart> {
   final ApiConfig_apiService = ApiConfig();
   final baseImageUrl = '${ApiConfig.getApiBaseUrl()}/storage/products/';
   double totalPrice = 0;
-  TextEditingController _quantity = TextEditingController();
+  late List<TextEditingController> _quantity = [];
 
   @override
   void initState() {
     super.initState();
     _buildSumPrice();
+    _initQuantityControllers();
+    
   }
   @override
   void dispose(){
-    _quantity.dispose();
+    for(var controller in _quantity){
+      controller.dispose();
+    }
     super.dispose();
   }
+
+  
+ Future<void> _initQuantityControllers() async {
+  try {
+    final List<Map<String, dynamic>> cartProducts = await cartService.getCarts();
+    List<TextEditingController> quantityControllers = [];
+    for (final item in cartProducts) {
+      try {
+        final quantity = int.tryParse(item['quantity'].toString());
+        if (quantity != null) {
+          quantityControllers.add(TextEditingController(text: quantity.toString()));
+        } else {
+          
+          print('Invalid quantity found in cart item: ${item['quantity']}. Using default value.');
+          quantityControllers.add(TextEditingController(text: '1')); // Set a default value
+        }
+      } on FormatException catch (e) {
+        print('Error parsing quantity: ${e.message}. Using default value.');
+        quantityControllers.add(TextEditingController(text: '1')); // Set a default value
+      }
+    }
+    setState(() {
+      _quantity = quantityControllers;
+    });
+  } catch (error) {
+    
+    print('Error fetching cart products: $error');
+  }
+}
 
   Future<void> _buildSumPrice() async {
     try {
@@ -75,7 +108,7 @@ class _CartState extends State<Cart> {
     );
   }
 
-  Widget __buildCheckoutButton() {
+  Widget _buildCheckoutButton() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -88,7 +121,7 @@ class _CartState extends State<Cart> {
     );
   }
 
-  Widget __buildProductImgs(dynamic images) {
+  Widget _buildProductImgs(dynamic images) {
     List<String> imageList = [];
 
     if (images is String) {
@@ -236,7 +269,7 @@ class _CartState extends State<Cart> {
     );
   }
 
-  Widget _buildListProduct(Map<String, dynamic> cartProduct) {
+  Widget _buildListProduct(Map<String, dynamic> cartProduct, int index) {
     final dynamic colors = cartProduct['colors'];
     final dynamic sizes = cartProduct['sizes'];
 
@@ -245,7 +278,7 @@ class _CartState extends State<Cart> {
     final dynamic productImgs = cartProduct['images'];
     final dynamic deliveryName = cartProduct['deliveryName'];
     final dynamic deliveryPrice = cartProduct['deliveryPrice'];
-    
+    final dynamic quantity = cartProduct['quantity'];
    
     if (cartProduct['id'].toString().length >= 1) {
       return Column(
@@ -258,7 +291,7 @@ class _CartState extends State<Cart> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 8),
-                  __buildProductImgs(productImgs),
+                  _buildProductImgs(productImgs),
                   SizedBox(height: 8),
                   _buildProductName(productName),
                   _buildProductPrice(productPrice),
@@ -269,28 +302,7 @@ class _CartState extends State<Cart> {
                   Text('Sizes:'),
                   _buildChipSize(sizes),
                   SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        flex: 2,
-                        child: TextFormField(
-                          controller: _quantity,
-                         // initialValue: cartProduct['quantity'].toString(),
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: 'Quantity',
-                            suffixText: 'units'
-                          ),
-                          onChanged: (value) {
-                            
-                             _quantity.text = value;
-                              print(_quantity.text);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildQuantityInput(quantity, index),
                   SizedBox(height: 10),
                   _buildBottomDelete(cartProduct),
                 ],
@@ -302,6 +314,33 @@ class _CartState extends State<Cart> {
     } else {
       return Container();
     }
+  }
+
+  Widget _buildQuantityInput(dynamic quantity, int index){
+   print(index);
+    return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    flex: 2,
+                    child: TextFormField(
+                      controller: _quantity[index],
+                     // initialValue: quantity.toString(),
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Quantity',
+                        suffixText: 'units'
+                      ),
+                      onChanged: (value) {
+                        final newQuantity = int.tryParse(value) ?? 0;
+                        print(newQuantity);
+                        //  _quantity = int.tryParse(value) ?? 0;
+                        //   print(value);
+                      },
+                    ),
+                  ),
+                ],
+              );
   }
 
   Widget build(BuildContext context) {
@@ -319,6 +358,7 @@ class _CartState extends State<Cart> {
             ),
           );
         } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+          final cartProducts = snapshot.data!;
           return Column(
             children: [
               Text(
@@ -327,14 +367,14 @@ class _CartState extends State<Cart> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: snapshot.data!.length,
+                  itemCount: cartProducts.length,
                   itemBuilder: (context, index) {
-                    final cartProduct = snapshot.data![index];
-                    return _buildListProduct(cartProduct);
+                    final cartProduct = cartProducts[index];
+                    return _buildListProduct(cartProduct, index);
                   },
                 ),
               ),
-               __buildCheckoutButton(),
+               _buildCheckoutButton(),
             ],
           );
         } else {
