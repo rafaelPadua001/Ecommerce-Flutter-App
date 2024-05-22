@@ -71,20 +71,20 @@ class MyHomePageState extends State<MyHomePage> {
   late Future<List<Map<String, dynamic>>> bannerFuture;
   final baseUrl = 'http://192.168.122.1:8000/storage/Categories/Thumbnails/';
   final bannerUrl = 'http://192.168.122.1:8000/storage/Banners/';
-  int _cartItemCount = 0;
+  //int _cartItemCount = 0;
 
   @override
   void initState() {
     super.initState();
     categoriesFuture = category.fetchCategories();
     _currentPage = SearchBarTextField();
-    _onItemTapped(_selectedIndex);
     countProductCart();
+    _onItemTapped(_selectedIndex);
+   // _itemCartCount();
   }
 
   @override
   void _onItemTapped(int index) async {
-    await _itemCartCount();
     setState(() {
       _selectedIndex = index;
     });
@@ -98,10 +98,12 @@ Future<void> _itemCartCount() async {
   Future<void> countProductCart() async {
     try {
       int _ItemCount = await cartService.countProductCart();
+      print('ItemCount: $_ItemCount');
       setState(() {
-        _cartItemCount = _ItemCount++;
-      }); 
-     
+        final int _cartItemCount = _ItemCount++;
+         _cartItemCount;
+      });
+      
     }
     catch(e){
       throw Exception('erro ao contar itens no carrinho $e');
@@ -125,7 +127,6 @@ Future<void> _itemCartCount() async {
         final imageUrl = baseUrl + imageName;
         return InkWell(
           onTap: () {
-            print('categoria clicada: ${categoryData['id']}');
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -250,7 +251,7 @@ Future<void> _itemCartCount() async {
           },
         );
       case 2:
-        return Cart(); //Text('Itens do carrinho aqui');
+        return Cart();
       case 3:
         return Profile();
       default:
@@ -260,13 +261,6 @@ Future<void> _itemCartCount() async {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,

@@ -55,7 +55,6 @@ class CartService {
             'userId': value['userId'],
             'deliveryName': value['deliveryName'],
             'deliveryPrice': value['deliveryPrice']
-            
           });
         });
       }
@@ -75,7 +74,6 @@ class CartService {
       await databaseReference
           .child('cart')
           .child(_authUser!.uid)
-         // .child(product!['id'].toString())
           .push()
           .set({
         'productId': product!['id'],
@@ -84,7 +82,6 @@ class CartService {
         'name': product['name'],
         'description': product['description'],
         'quantity': 1,
-        //'discount_id': product['discount_id'],
         'price': product['price'],
         'colors': product['colors'],
         'sizes': product['sizes'],
@@ -113,7 +110,7 @@ class CartService {
               .snapshot;
 
       final dynamic cartData = dataSnapshot.value;
-      int productCount = 0;
+      int productCount = cartData.length;
 
       if (cartData != null && cartData is List) {
         for (var item in cartData) {
@@ -123,7 +120,7 @@ class CartService {
         }
       }
 
-      print('Usuario possui $productCount itens em seu carrinho');
+      // print('Usuario possui $productCount itens em seu carrinho');
 
       return productCount;
     } catch (e) {
@@ -144,7 +141,6 @@ class CartService {
         .child(id)
         .remove()
         .then((_) {
-      print('Produto removido do carrinho');
     }).catchError((error) {
       return Future.error(error);
     });

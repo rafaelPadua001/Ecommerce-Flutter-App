@@ -53,13 +53,12 @@ class _CartState extends State<Cart> {
         icon: Icon(Icons.delete),
         onPressed: () async {
           try {
-            print('delete ${cartProduct['id']}');
             await cartService.deleteProduct(cartProduct['id']);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('produto removido com sucesso do carrinho.'),
             ));
-            _buildSumPrice();
-              Provider.of<CartModel>(context, listen: false).removeItem(cartProduct);
+              _buildSumPrice();
+              Provider.of<CartModel>(context, listen: false).removeItem(cartProduct['productId']);
             
           } catch (e) {
             print('Erro ao excluir o produto: $e');
