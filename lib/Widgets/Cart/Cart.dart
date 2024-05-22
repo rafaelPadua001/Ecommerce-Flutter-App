@@ -16,10 +16,17 @@ class _CartState extends State<Cart> {
   final ApiConfig_apiService = ApiConfig();
   final baseImageUrl = '${ApiConfig.getApiBaseUrl()}/storage/products/';
   double totalPrice = 0;
+  TextEditingController _quantity = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _buildSumPrice();
+  }
+  @override
+  void dispose(){
+    _quantity.dispose();
+    super.dispose();
   }
 
   Future<void> _buildSumPrice() async {
@@ -32,7 +39,7 @@ class _CartState extends State<Cart> {
         final dynamic price = product['price'];
         final dynamic totalValue = product['deliveryPrice'];
         if (price != null) {
-          total += double.parse(price.toString()) + double.parse(totalValue.toString());
+          total += double.parse(price.toString()) + (double.parse(totalValue.toString()));
         }
       }
 
@@ -119,7 +126,12 @@ class _CartState extends State<Cart> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Text(names),
+        Text(
+          '$names',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ],
     );
   }
@@ -137,7 +149,13 @@ class _CartState extends State<Cart> {
     if (priceList.isNotEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: priceList.map((price) => Text('R\$' + price)).toList(),
+        children: priceList.map((price) => Text(
+          'R\$' + price,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+          ),
+        ).toList(),
       );
     } else {
       return SizedBox();
@@ -148,9 +166,11 @@ class _CartState extends State<Cart> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('delivery: $deliveryName'),
+        Text('delivery: $deliveryName',
+        ),
         SizedBox(height: 2),
-        Text('delivery price: ${deliveryPrice}'),
+       
+        Text('Delivery price: R\$ ${deliveryPrice}'),
       ],
     );
   }
@@ -159,7 +179,12 @@ class _CartState extends State<Cart> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Text('Total: ${total}'),
+        Text('Total: R\$ ${total}',
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+        ),
+        
       ],
     );
   }
@@ -220,6 +245,7 @@ class _CartState extends State<Cart> {
     final dynamic productImgs = cartProduct['images'];
     final dynamic deliveryName = cartProduct['deliveryName'];
     final dynamic deliveryPrice = cartProduct['deliveryPrice'];
+    
    
     if (cartProduct['id'].toString().length >= 1) {
       return Column(
@@ -249,13 +275,17 @@ class _CartState extends State<Cart> {
                       Flexible(
                         flex: 2,
                         child: TextFormField(
-                          initialValue: cartProduct['quantity'].toString(),
+                          controller: _quantity,
+                         // initialValue: cartProduct['quantity'].toString(),
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: 'Quantity',
+                            suffixText: 'units'
                           ),
                           onChanged: (value) {
-                            // print(value);
+                            
+                             _quantity.text = value;
+                              print(_quantity.text);
                           },
                         ),
                       ),
