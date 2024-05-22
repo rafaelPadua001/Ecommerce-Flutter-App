@@ -1,5 +1,4 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:ecommerce_clone_app/main.dart';
 import 'package:ecommerce_clone_app/Services/cart_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
