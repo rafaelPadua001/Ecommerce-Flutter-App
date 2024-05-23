@@ -66,7 +66,7 @@ class _CartState extends State<Cart> {
     try {
       final List<Map<String, dynamic>> cartProducts =
           await cartService.getCarts();
-
+      
       double total = 0;
       for (final product in cartProducts) {
         final dynamic price = product['price'];
@@ -82,6 +82,18 @@ class _CartState extends State<Cart> {
     } catch (e) {
       print('Erro ao carregar os itens do carrinho: $e');
       // Tratar erro de carregamento do carrinho aqui
+    }
+  }
+
+  Future<void> _saveQuantity(int newQuantity,  productId, cartId) async {
+    print('Quantidade a ser salva $newQuantity, $cartId');
+    try{
+      final saveQuantity = await cartService.updateQuantity(productId.toString(), newQuantity, cartId);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Quantidade salva $newQuantity')));
+      print('Quantidade atualizada com sucesso');
+    }
+    catch(e){
+      throw Exception('Error $e');
     }
   }
 
@@ -272,7 +284,7 @@ class _CartState extends State<Cart> {
   Widget _buildListProduct(Map<String, dynamic> cartProduct, int index) {
     final dynamic colors = cartProduct['colors'];
     final dynamic sizes = cartProduct['sizes'];
-
+    final dynamic productId = cartProduct['productId'];
     final dynamic productName = cartProduct['name'];
     final dynamic productPrice = cartProduct['price'];
     final dynamic productImgs = cartProduct['images'];
@@ -302,7 +314,7 @@ class _CartState extends State<Cart> {
                   Text('Sizes:'),
                   _buildChipSize(sizes),
                   SizedBox(height: 8),
-                  _buildQuantityInput(quantity, index),
+                  _buildQuantityInput(quantity, index, productId, cartProduct['id']),
                   SizedBox(height: 10),
                   _buildBottomDelete(cartProduct),
                 ],
@@ -316,7 +328,7 @@ class _CartState extends State<Cart> {
     }
   }
 
-  Widget _buildQuantityInput(dynamic quantity, int index){
+  Widget _buildQuantityInput(dynamic quantity, int index, productId, cartId){
    print(index);
     return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -334,6 +346,7 @@ class _CartState extends State<Cart> {
                       onChanged: (value) {
                         final newQuantity = int.tryParse(value) ?? 0;
                         print(newQuantity);
+                        _saveQuantity(newQuantity, productId, cartId);
                         //  _quantity = int.tryParse(value) ?? 0;
                         //   print(value);
                       },

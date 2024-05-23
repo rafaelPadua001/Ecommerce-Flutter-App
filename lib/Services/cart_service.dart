@@ -96,6 +96,25 @@ class CartService {
     }
   }
 
+  Future<void> updateQuantity(String productId, quantity, cartId) async {
+    try{
+      final _authUser = await _authService.getCurrentUser();
+      if(_authUser == null){
+        throw Exception('Usuário não autenticado');
+      }
+
+      final databaseReference = await getDatabase();
+      print(cartId);
+      await databaseReference.child('cart').child('${_authUser.uid}').child(cartId).update({
+        'quantity' : quantity,
+      });
+
+      countProductCart();
+    }
+    catch(e){
+      throw Exception ('error: $e');
+    };
+  }
 
   Future<int> countProductCart() async {
     try {
