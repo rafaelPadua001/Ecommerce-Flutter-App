@@ -23,60 +23,63 @@ class _CartState extends State<Cart> {
     super.initState();
     _buildSumPrice();
     _initQuantityControllers();
-    
   }
+
   @override
-  void dispose(){
-    for(var controller in _quantity){
+  void dispose() {
+    for (var controller in _quantity) {
       controller.dispose();
     }
     super.dispose();
   }
 
-  
- Future<void> _initQuantityControllers() async {
-  try {
-    final List<Map<String, dynamic>> cartProducts = await cartService.getCarts();
-    List<TextEditingController> quantityControllers = [];
-    for (final item in cartProducts) {
-      try {
-        final quantity = int.tryParse(item['quantity'].toString());
-        if (quantity != null) {
-          quantityControllers.add(TextEditingController(text: quantity.toString()));
-        } else {
-          
-          print('Invalid quantity found in cart item: ${item['quantity']}. Using default value.');
-          quantityControllers.add(TextEditingController(text: '1')); // Set a default value
+  Future<void> _initQuantityControllers() async {
+    try {
+      final List<Map<String, dynamic>> cartProducts =
+          await cartService.getCarts();
+      List<TextEditingController> quantityControllers = [];
+      for (final item in cartProducts) {
+        try {
+          final quantity = int.tryParse(item['quantity'].toString());
+          if (quantity != null) {
+            quantityControllers
+                .add(TextEditingController(text: quantity.toString()));
+          } else {
+            print(
+                'Invalid quantity found in cart item: ${item['quantity']}. Using default value.');
+            quantityControllers
+                .add(TextEditingController(text: '1')); // Set a default value
+          }
+        } on FormatException catch (e) {
+          print('Error parsing quantity: ${e.message}. Using default value.');
+          quantityControllers
+              .add(TextEditingController(text: '1')); // Set a default value
         }
-      } on FormatException catch (e) {
-        print('Error parsing quantity: ${e.message}. Using default value.');
-        quantityControllers.add(TextEditingController(text: '1')); // Set a default value
       }
+      setState(() {
+        _quantity = quantityControllers;
+      });
+    } catch (error) {
+      print('Error fetching cart products: $error');
     }
-    setState(() {
-      _quantity = quantityControllers;
-    });
-  } catch (error) {
-    
-    print('Error fetching cart products: $error');
   }
-}
 
   Future<void> _buildSumPrice() async {
     try {
       final List<Map<String, dynamic>> cartProducts =
           await cartService.getCarts();
-      
+
       double total = 0;
       for (final product in cartProducts) {
         final dynamic price = product['price'];
         final dynamic totalValue = product['deliveryPrice'];
         final dynamic quantity = product['quantity'];
         if (price != null) {
-          setState((){
-            total += quantity * (double.parse(price.toString()) + double.parse(totalValue.toString()));
+          setState(() {
+            total += quantity *
+                (double.parse(price.toString()) +
+                    double.parse(totalValue.toString()));
           });
-       
         }
       }
 
@@ -89,17 +92,15 @@ class _CartState extends State<Cart> {
     }
   }
 
-  Future<void> _saveQuantity(int newQuantity,  productId, cartId) async {
-    try{
-      final saveQuantity = await cartService.updateQuantity(productId.toString(), newQuantity, cartId);
+  Future<void> _saveQuantity(int newQuantity, productId, cartId) async {
+    try {
+      final saveQuantity = await cartService.updateQuantity(
+          productId.toString(), newQuantity, cartId);
       setState(() {
         //  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Quantidade salva $newQuantity')));
         _buildSumPrice();
       });
-     
-     
-    }
-    catch(e){
+    } catch (e) {
       throw Exception('Error $e');
     }
   }
@@ -116,9 +117,9 @@ class _CartState extends State<Cart> {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('produto removido com sucesso do carrinho.'),
             ));
-              _buildSumPrice();
-              Provider.of<CartModel>(context, listen: false).removeItem(cartProduct['productId']);
-            
+            _buildSumPrice();
+            Provider.of<CartModel>(context, listen: false)
+                .removeItem(cartProduct['productId']);
           } catch (e) {
             print('Erro ao excluir o produto: $e');
           }
@@ -201,45 +202,52 @@ class _CartState extends State<Cart> {
     if (priceList.isNotEmpty) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: priceList.map((price) => Text(
-          'R\$' + price,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-          ),
-        ).toList(),
+        children: priceList
+            .map(
+              (price) => Text(
+                'R\$' + price,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )
+            .toList(),
       );
     } else {
       return SizedBox();
     }
   }
 
-  Widget _buildDeliveryName(dynamic deliveryName, deliveryPrice, quantity){
+  Widget _buildDeliveryName(dynamic deliveryName, deliveryPrice, quantity) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('delivery: $deliveryName',
+        Text(
+          'delivery: $deliveryName',
         ),
         SizedBox(height: 2),
-       
         Text('Delivery price: R\$ ${deliveryPrice * quantity}'),
       ],
     );
   }
-  Widget _buildTotalOrder(dynamic deliveryPrice, productPrice, quantity){
-    final total = quantity * (double.parse(deliveryPrice.toString()) + double.parse(productPrice.toString()));
+
+  Widget _buildTotalOrder(dynamic deliveryPrice, productPrice, quantity) {
+    final total = quantity *
+        (double.parse(deliveryPrice.toString()) +
+            double.parse(productPrice.toString()));
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Text('Total: R\$ ${total}',
+        Text(
+          'Total: R\$ ${total}',
           style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        
       ],
     );
   }
+
   Widget _buildColorCircles(dynamic colors) {
     List<String> colorList = [];
 
@@ -298,7 +306,8 @@ class _CartState extends State<Cart> {
     final dynamic deliveryName = cartProduct['deliveryName'];
     final dynamic deliveryPrice = cartProduct['deliveryPrice'];
     final dynamic quantity = cartProduct['quantity'];
-   
+    final dynamic discount = cartProduct['discount_percentage'];
+
     if (cartProduct['id'].toString().length >= 1) {
       return Column(
         children: [
@@ -321,8 +330,11 @@ class _CartState extends State<Cart> {
                   Text('Sizes:'),
                   _buildChipSize(sizes),
                   SizedBox(height: 8),
-                  _buildQuantityInput(quantity, index, productId, cartProduct['id']),
+                  _buildQuantityInput(
+                      quantity, index, productId, cartProduct['id']),
                   SizedBox(height: 10),
+                  if(discount != null) _buildCoupon(),
+                  SizedBox(height: 10,),
                   _buildBottomDelete(cartProduct),
                 ],
               ),
@@ -335,28 +347,45 @@ class _CartState extends State<Cart> {
     }
   }
 
-  Widget _buildQuantityInput(dynamic quantity, int index, productId, cartId){
+  Widget _buildQuantityInput(dynamic quantity, int index, productId, cartId) {
     return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    flex: 2,
-                    child: TextFormField(
-                      controller: _quantity[index],
-                     // initialValue: quantity.toString(),
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Quantity',
-                        suffixText: 'units'
-                      ),
-                      onChanged: (value) {
-                        final newQuantity = int.tryParse(value) ?? 0;
-                        _saveQuantity(newQuantity, productId, cartId);
-                      },
-                    ),
-                  ),
-                ],
-              );
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          flex: 2,
+          child: TextFormField(
+            controller: _quantity[index],
+            // initialValue: quantity.toString(),
+            keyboardType: TextInputType.number,
+            decoration:
+                InputDecoration(labelText: 'Quantity', suffixText: 'units'),
+            onFieldSubmitted: (value) {
+              final newQuantity = int.tryParse(value) ?? 0;
+              _saveQuantity(newQuantity, productId, cartId);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCoupon(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Flexible(
+          flex: 2,
+          child: TextFormField(
+            initialValue: 'Coupon Name',
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+              labelText: 'Coupon name',
+            ),
+
+          )
+        ),
+      ],
+    );
   }
 
   Widget build(BuildContext context) {
@@ -377,9 +406,28 @@ class _CartState extends State<Cart> {
           final cartProducts = snapshot.data!;
           return Column(
             children: [
-              Text(
-                'Total: R\$ ${totalPrice.toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Card(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        'Total',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text('R\$ ${totalPrice.toStringAsFixed(2)}'),
+                    ),
+                    ListTile(
+                      title: Text(
+                        'Subtotal: (with discount)',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text('Coupon value'),
+                    ),
+                  ],
+                ),
               ),
               Expanded(
                 child: ListView.builder(
@@ -390,7 +438,7 @@ class _CartState extends State<Cart> {
                   },
                 ),
               ),
-               _buildCheckoutButton(),
+              _buildCheckoutButton(),
             ],
           );
         } else {
