@@ -93,7 +93,7 @@ class _CartState extends State<Cart> {
     try{
       final saveQuantity = await cartService.updateQuantity(productId.toString(), newQuantity, cartId);
       setState(() {
-         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Quantidade salva $newQuantity')));
+        //  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Quantidade salva $newQuantity')));
         _buildSumPrice();
       });
      
