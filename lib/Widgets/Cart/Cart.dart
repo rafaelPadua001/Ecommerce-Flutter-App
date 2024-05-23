@@ -214,7 +214,7 @@ class _CartState extends State<Cart> {
     }
   }
 
-  Widget _buildDeliveryName(dynamic deliveryName, deliveryPrice){
+  Widget _buildDeliveryName(dynamic deliveryName, deliveryPrice, quantity){
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -222,7 +222,7 @@ class _CartState extends State<Cart> {
         ),
         SizedBox(height: 2),
        
-        Text('Delivery price: R\$ ${deliveryPrice}'),
+        Text('Delivery price: R\$ ${deliveryPrice * quantity}'),
       ],
     );
   }
@@ -314,7 +314,7 @@ class _CartState extends State<Cart> {
                   SizedBox(height: 8),
                   _buildProductName(productName),
                   _buildProductPrice(productPrice),
-                  _buildDeliveryName(deliveryName, deliveryPrice),
+                  _buildDeliveryName(deliveryName, deliveryPrice, quantity),
                   _buildTotalOrder(deliveryPrice, productPrice, quantity),
                   _buildColorCircles(colors),
                   SizedBox(height: 8),
