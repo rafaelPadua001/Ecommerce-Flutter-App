@@ -66,13 +66,17 @@ class _CartState extends State<Cart> {
     try {
       final List<Map<String, dynamic>> cartProducts =
           await cartService.getCarts();
-
+      
       double total = 0;
       for (final product in cartProducts) {
         final dynamic price = product['price'];
         final dynamic totalValue = product['deliveryPrice'];
+        final dynamic quantity = product['quantity'];
         if (price != null) {
-          total += double.parse(price.toString()) + (double.parse(totalValue.toString()));
+          setState((){
+            total += quantity * (double.parse(price.toString()) + double.parse(totalValue.toString()));
+          });
+       
         }
       }
 
@@ -82,6 +86,21 @@ class _CartState extends State<Cart> {
     } catch (e) {
       print('Erro ao carregar os itens do carrinho: $e');
       // Tratar erro de carregamento do carrinho aqui
+    }
+  }
+
+  Future<void> _saveQuantity(int newQuantity,  productId, cartId) async {
+    try{
+      final saveQuantity = await cartService.updateQuantity(productId.toString(), newQuantity, cartId);
+      setState(() {
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Quantidade salva $newQuantity')));
+        _buildSumPrice();
+      });
+     
+     
+    }
+    catch(e){
+      throw Exception('Error $e');
     }
   }
 
@@ -207,8 +226,8 @@ class _CartState extends State<Cart> {
       ],
     );
   }
-  Widget _buildTotalOrder(dynamic deliveryPrice, productPrice){
-    final total = double.parse(deliveryPrice.toString()) + double.parse(productPrice.toString());
+  Widget _buildTotalOrder(dynamic deliveryPrice, productPrice, quantity){
+    final total = quantity * (double.parse(deliveryPrice.toString()) + double.parse(productPrice.toString()));
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -272,7 +291,7 @@ class _CartState extends State<Cart> {
   Widget _buildListProduct(Map<String, dynamic> cartProduct, int index) {
     final dynamic colors = cartProduct['colors'];
     final dynamic sizes = cartProduct['sizes'];
-
+    final dynamic productId = cartProduct['productId'];
     final dynamic productName = cartProduct['name'];
     final dynamic productPrice = cartProduct['price'];
     final dynamic productImgs = cartProduct['images'];
@@ -296,13 +315,13 @@ class _CartState extends State<Cart> {
                   _buildProductName(productName),
                   _buildProductPrice(productPrice),
                   _buildDeliveryName(deliveryName, deliveryPrice),
-                  _buildTotalOrder(deliveryPrice, productPrice),
+                  _buildTotalOrder(deliveryPrice, productPrice, quantity),
                   _buildColorCircles(colors),
                   SizedBox(height: 8),
                   Text('Sizes:'),
                   _buildChipSize(sizes),
                   SizedBox(height: 8),
-                  _buildQuantityInput(quantity, index),
+                  _buildQuantityInput(quantity, index, productId, cartProduct['id']),
                   SizedBox(height: 10),
                   _buildBottomDelete(cartProduct),
                 ],
@@ -316,8 +335,7 @@ class _CartState extends State<Cart> {
     }
   }
 
-  Widget _buildQuantityInput(dynamic quantity, int index){
-   print(index);
+  Widget _buildQuantityInput(dynamic quantity, int index, productId, cartId){
     return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -333,9 +351,7 @@ class _CartState extends State<Cart> {
                       ),
                       onChanged: (value) {
                         final newQuantity = int.tryParse(value) ?? 0;
-                        print(newQuantity);
-                        //  _quantity = int.tryParse(value) ?? 0;
-                        //   print(value);
+                        _saveQuantity(newQuantity, productId, cartId);
                       },
                     ),
                   ),
