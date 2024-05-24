@@ -136,6 +136,7 @@ class _CartState extends State<Cart> {
             onPressed: () {
               print('Botão de checkout clicado');
               print(cartProducts);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Estamos Trabalhando nisso...')));
             }),
       ],
     );
