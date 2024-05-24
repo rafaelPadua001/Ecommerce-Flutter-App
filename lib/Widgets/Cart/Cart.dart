@@ -97,7 +97,6 @@ class _CartState extends State<Cart> {
       final saveQuantity = await cartService.updateQuantity(
           productId.toString(), newQuantity, cartId);
       setState(() {
-        //  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Quantidade salva $newQuantity')));
         _buildSumPrice();
       });
     } catch (e) {
@@ -128,7 +127,7 @@ class _CartState extends State<Cart> {
     );
   }
 
-  Widget _buildCheckoutButton() {
+  Widget _buildCheckoutButton(cartProducts ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -136,6 +135,7 @@ class _CartState extends State<Cart> {
             child: Text('Checkout'),
             onPressed: () {
               print('Botão de checkout clicado');
+              print(cartProducts);
             }),
       ],
     );
@@ -219,6 +219,7 @@ class _CartState extends State<Cart> {
   }
 
   Widget _buildDeliveryName(dynamic deliveryName, deliveryPrice, quantity) {
+    final totalDeliveryPrice = deliveryPrice * quantity;
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -226,7 +227,7 @@ class _CartState extends State<Cart> {
           'delivery: $deliveryName',
         ),
         SizedBox(height: 2),
-        Text('Delivery price: R\$ ${deliveryPrice * quantity}'),
+        Text('Total delivery price: R\$ ${totalDeliveryPrice}'),
       ],
     );
   }
@@ -438,7 +439,7 @@ class _CartState extends State<Cart> {
                   },
                 ),
               ),
-              _buildCheckoutButton(),
+              _buildCheckoutButton(cartProducts),
             ],
           );
         } else {
